@@ -1,0 +1,102 @@
+---
+nameOverride: "aries-did-web"
+fullnameOverride: "aries-did-web"
+ingressSuffix: ""
+
+selectorLabels: {}
+
+openshift:
+  route:
+    path: "/"
+    tls:
+      enabled: true
+      insecureEdgeTerminationPolicy: None
+      termination: edge
+    wildcardPolicy: None
+    timeout: 2m
+
+ingress:
+  labels:
+    certbot-managed: "false"
+  annotations:
+    route.openshift.io/termination: edge
+
+networkPolicy:
+  ingress:
+    namespaceSelector:
+      network.openshift.io/policy-group: ingress
+
+server:
+  image:
+    repository: ghcr.io/bcgov/aries-did-web
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+    tag: 0.1.0
+
+  host: ""
+
+  replicaCount: 1
+
+  podAnnotations: {}
+  podSecurityContext: {}
+  containerSecurityContext: {}
+
+  service:
+    type: ClusterIP
+    apiPort: 8000
+    servicePort: 80
+
+  resources:
+    limits:
+      cpu: 100m
+      memory: 512Mi
+    requests:
+      cpu: 10m
+      memory: 128Mi
+
+  networkPolicy:
+    ingress:
+      podSelector: {}
+
+  environment:
+    ENDORSER_MULTIKEY: ""
+
+postgresql:
+  enabled: true
+  fullnameOverride: "aries-did-web-postgresql"
+  nameOverride: "aries-did-web-postgresql"
+  architecture: standalone
+  auth:
+    enablePostgresUser: true
+    existingSecret: ""
+    secretKeys:
+      adminPasswordKey: admin-password
+      userPasswordKey: database-password
+    database: aries-did-web
+    username: aries-did-web
+
+  ## PostgreSQL Primary parameters
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    containerSecurityContext:
+      enabled: false
+    podSecurityContext:
+      enabled: false
+    resources:
+      limits:
+        cpu: 800m
+        memory: 500Mi
+      requests:
+        cpu: 100m
+        memory: 100Mi
+    service:
+      ports:
+        postgresql: 5432
+    extendedConfiguration: |
+      max_connections = 500
+
+  networkPolicy:
+    ingress:
+      podSelector: {}

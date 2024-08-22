@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "server.fullname" . }}
+  labels:
+    {{- include "server.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.server.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "server.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- toYaml .Values.server.podAnnotations | nindent 8 }}
+      labels:
+        {{- include "server.selectorLabels" . | nindent 8 }}
+    spec:
+      imagePullSecrets:
+        {{- toYaml .Values.server.image.pullSecrets | nindent 8 }}
+      securityContext:
+        {{- toYaml .Values.server.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ include "server.fullname" . }}
+          securityContext:
+            {{- toYaml .Values.server.containerSecurityContext | nindent 12 }}
+          image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{ include "server.fullname" . }}-env
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: aries-did-web-postgresql
+                  key: password
+            - name: POSTGRES_URI
+              value: postgres://{{ .Values.postgresql.auth.username }}:$(POSTGRES_PASSWORD)@{{ include "global.postgresql.fullname" . }}:{{ .Values.postgresql.primary.service.ports.postgresql }}
+          ports:
+            - name: api
+              containerPort: {{ .Values.server.service.apiPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /server/status
+              port: {{ .Values.server.service.apiPort }}
+            failureThreshold: 2
+            initialDelaySeconds: 60
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /server/status
+              port: {{ .Values.server.service.apiPort }}
+            initialDelaySeconds: 60
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+      nodeSelector:
+        {{- toYaml .Values.server.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.server.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.server.tolerations | nindent 8 }}

@@ -1,6 +1,6 @@
 import uvicorn
 import asyncio
-from app.db import AskarStorage
+from app.plugins import AskarStorage
 
 if __name__ == "__main__":
     asyncio.run(AskarStorage().provision())
@@ -8,5 +8,6 @@ if __name__ == "__main__":
         "app.api:app",
         host="0.0.0.0",
         port=8000,
-        workers=4,
+        reload=True,
+        # workers=4,
     )

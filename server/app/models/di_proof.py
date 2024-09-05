@@ -8,6 +8,10 @@ class DataIntegrityProof(BaseModel):
     verification_method: str = Field(alias="verificationMethod")
     proof_value: str = Field(alias="proofValue")
     proof_purpose: str = Field(alias="proofPurpose")
+    domain: str = Field()
+    challenge: str = Field()
+    created: str = Field()
+    expires: str = Field()
 
     @field_validator("type")
     @classmethod

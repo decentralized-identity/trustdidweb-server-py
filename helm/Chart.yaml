@@ -1,5 +1,5 @@
 apiVersion: v2
-name: aries-did-web
+name: aries-did-web-server
 description: An api server to register and serve web dids.
 type: application
 

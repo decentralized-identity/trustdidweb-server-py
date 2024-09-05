@@ -1,6 +1,6 @@
 ---
-nameOverride: "aries-did-web"
-fullnameOverride: "aries-did-web"
+nameOverride: "aries-did-web-server"
+fullnameOverride: "aries-did-web-server"
 ingressSuffix: ""
 
 selectorLabels: {}
@@ -28,7 +28,7 @@ networkPolicy:
 
 server:
   image:
-    repository: ghcr.io/bcgov/aries-did-web
+    repository: ghcr.io/bcgov/aries-did-web-server
     pullPolicy: IfNotPresent
     pullSecrets: []
     tag: 0.1.0
@@ -59,6 +59,7 @@ server:
       podSelector: {}
 
   environment:
+    DOMAIN: ""
     ENDORSER_MULTIKEY: ""
 
 postgresql:
@@ -72,8 +73,8 @@ postgresql:
     secretKeys:
       adminPasswordKey: admin-password
       userPasswordKey: database-password
-    database: aries-did-web
-    username: aries-did-web
+    database: aries-did-web-server
+    username: aries-did-web-server
 
   ## PostgreSQL Primary parameters
   primary:

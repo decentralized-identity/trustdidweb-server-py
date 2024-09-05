@@ -1,6 +1,6 @@
 from typing import Union, List, Dict
-from pydantic import BaseModel, Field, AliasChoices, field_validator
-
+from pydantic import BaseModel, Field
+from .did_document import DidDocument
 
 class RegisterDID(BaseModel):
-    didDocument: dict = Field()
+    didDocument: DidDocument = Field()

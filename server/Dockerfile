@@ -1,6 +1,6 @@
-FROM python:3.11-slim
+FROM python:3.12
 
-WORKDIR /aries-did-web
+WORKDIR /aries-did-web-server
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV

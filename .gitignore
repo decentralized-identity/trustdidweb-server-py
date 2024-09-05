@@ -1,3 +1,9 @@
+# Local Databases
+app.db
+
+# Linting
+.ruff_cache/
+
 # letsencrypt certificates
 .letsencrypt/
 

@@ -40,8 +40,8 @@ spec:
                 secretKeyRef:
                   name: aries-did-web-postgresql
                   key: password
-            # - name: POSTGRES_URI
-            #   value: postgres://{{ .Values.postgresql.auth.username }}:$(POSTGRES_PASSWORD)@{{ include "global.postgresql.fullname" . }}:{{ .Values.postgresql.primary.service.ports.postgresql }}
+            - name: POSTGRES_URI
+              value: postgres://{{ .Values.postgresql.auth.username }}:$(POSTGRES_PASSWORD)@{{ include "global.postgresql.fullname" . }}:{{ .Values.postgresql.primary.service.ports.postgresql }}
           ports:
             - name: api
               containerPort: {{ .Values.server.service.apiPort }}

@@ -9,16 +9,17 @@ load_dotenv(os.path.join(basedir, ".env"))
 
 
 class Settings(BaseSettings):
-    PROJECT_TITLE: str = "aries-did-web"
+    PROJECT_TITLE: str = "aries-did-web-server"
     PROJECT_VERSION: str = "v0"
 
     DOMAIN: str = os.environ["DOMAIN"]
-    DID_WEB_BASE: str = f"did:web:{DOMAIN}"
-    DID_TDW_BASE: str = r"did:tdw:{{SCID}}:" + DOMAIN
     SECRET_KEY: str = os.environ["SECRET_KEY"]
+    DID_WEB_BASE: str = f"did:web:{DOMAIN}"
     ENDORSER_MULTIKEY: str = os.environ["ENDORSER_MULTIKEY"]
     ASKAR_DB: str = (
-        os.environ["POSTGRESURI"] if "POSTGRESURI" in os.environ else "sqlite://app.db"
+        os.environ["POSTGRES_URI"]
+        if "POSTGRES_URI" in os.environ
+        else "sqlite://app.db"
     )
 
 

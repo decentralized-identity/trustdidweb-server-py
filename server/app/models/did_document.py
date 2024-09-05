@@ -2,6 +2,7 @@ from typing import Union, List, Dict
 from pydantic import BaseModel, Field
 from .di_proof import DataIntegrityProof
 
+
 class VerificationMethod(BaseModel):
     id: str = Field()
     type: Union[str, List[str]] = Field()
@@ -16,7 +17,9 @@ class Service(BaseModel):
 
 
 class DidDocument(BaseModel):
-    context: Union[str, List[str]] = Field(["https://www.w3.org/ns/did/v1"], alias="@context")
+    context: Union[str, List[str]] = Field(
+        ["https://www.w3.org/ns/did/v1"], alias="@context"
+    )
     id: str = Field(None)
     controller: str = Field(None)
     alsoKnownAs: List[str] = Field(None)

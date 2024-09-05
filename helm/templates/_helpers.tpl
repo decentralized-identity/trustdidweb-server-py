@@ -35,7 +35,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{/* SERVER */}}
 
 {{- define "server.fullname" -}}
-{{ template "global.fullname" . }}-server
+{{ template "global.fullname" . }}
 {{- end -}}
 
 {{- define "server.selectorLabels" -}}

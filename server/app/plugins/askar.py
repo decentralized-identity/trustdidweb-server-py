@@ -22,7 +22,7 @@ class AskarStorage:
     async def provision(self, recreate=False):
         await Store.provision(self.db, "raw", self.key, recreate=recreate)
         endorser_did_doc = create_did_doc(
-            settings.DID_WEB_BASE, settings.ENDORSER_MULTIKEY
+            did=settings.DID_WEB_BASE, multikey=settings.ENDORSER_MULTIKEY
         )
         try:
             await self.store("didDocument", settings.DID_WEB_BASE, endorser_did_doc)
@@ -75,7 +75,7 @@ class AskarVerifier:
         self.purpose = "authentication"
         if multikey:
             self.key = Key(LocalKeyHandle()).from_public_bytes(
-                alg='ed25519', public=bytes(bytearray(multibase.decode(multikey))[2:])
+                alg="ed25519", public=bytes(bytearray(multibase.decode(multikey))[2:])
             )
 
     def create_proof_config(self):
@@ -100,16 +100,26 @@ class AskarVerifier:
 
     def assert_proof_options(self, proof):
         try:
-            assert proof["type"] == self.type, f'Expected {self.type} proof type.'
-            assert proof["cryptosuite"] == self.cryptosuite, f'Expected {self.cryptosuite} proof cryptosuite.'
-            assert proof["proofPurpose"] == self.purpose, f'Expected {self.purpose} proof purpose.'
-            assert proof["domain"] == settings.DOMAIN, 'Domain mismatch.'
+            assert proof["type"] == self.type, f"Expected {self.type} proof type."
+            assert (
+                proof["cryptosuite"] == self.cryptosuite
+            ), f"Expected {self.cryptosuite} proof cryptosuite."
+            assert (
+                proof["proofPurpose"] == self.purpose
+            ), f"Expected {self.purpose} proof purpose."
+            assert proof["domain"] == settings.DOMAIN, "Domain mismatch."
             assert proof["challenge"] == self.create_challenge(
                 proof["created"] + proof["expires"]
-            ), 'Challenge mismatch.'
-            assert datetime.fromisoformat(proof["created"]) < datetime.now(timezone.utc), 'Invalid proof creation timestamp.'
-            assert datetime.fromisoformat(proof["expires"]) > datetime.now(timezone.utc), 'Proof expired.'
-            assert datetime.fromisoformat(proof["created"]) < datetime.fromisoformat(proof["expires"]), 'Proof validity period invalid.'
+            ), "Challenge mismatch."
+            assert datetime.fromisoformat(proof["created"]) < datetime.now(
+                timezone.utc
+            ), "Invalid proof creation timestamp."
+            assert datetime.fromisoformat(proof["expires"]) > datetime.now(
+                timezone.utc
+            ), "Proof expired."
+            assert datetime.fromisoformat(proof["created"]) < datetime.fromisoformat(
+                proof["expires"]
+            ), "Proof validity period invalid."
         except AssertionError as msg:
             raise HTTPException(status_code=400, detail=str(msg))
 
@@ -133,6 +143,4 @@ class AskarVerifier:
                     status_code=400, detail="Signature was forged or corrupt."
                 )
         except:
-            raise HTTPException(
-                status_code=400, detail="Error verifying proof."
-            )
+            raise HTTPException(status_code=400, detail="Error verifying proof.")

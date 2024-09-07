@@ -3,6 +3,7 @@
 There's 3 ways to run this demo:
 - Using the deployed demo instance of the services through the public Postman workspace.
   - Just head to the [public Postman workspace](https://www.postman.com/bcgov-digital-trust/trust-did-web-server) and follow the instructions.
+  - You can also import this workspace by searching for `Trust DID Web Server` in the public API Network.
 
 - Deploying the project locally and using a desktop installation of Postman to execute the requests.
   - You will need a **local** installation of the [Postman desktop app](https://www.postman.com/downloads/). Once you have this, you can import the [public workspace](https://www.postman.com/bcgov-digital-trust/trust-did-web-server). The workspace also contains additional documentation for runnig this demo.

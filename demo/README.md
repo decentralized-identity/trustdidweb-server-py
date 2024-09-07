@@ -76,7 +76,7 @@ From this point on, you have 10 minutes to complete the rest of this demo before
 
 ## Create a new verification Method
 Open the browser and register a new verification method with the agent.
-http://issuer.docker.localhost/api/doc#/did/post_did_web
+- http://issuer.docker.localhost/api/doc#/did/post_did_web
 
 Here's a sample request you can copy into the OpenAPI interface.
 
@@ -110,7 +110,7 @@ Create your DID document, adding the verification method created at the previous
 }
 ```
 Sign with the proof options obtained from step 1.
-http://issuer.docker.localhost/api/doc#/wallet/post_wallet_di_add_proof
+- http://issuer.docker.localhost/api/doc#/wallet/post_wallet_di_add_proof
 
 See below for a template to use as your request body.
 - *You will need to use the options you obtained since there's an expiration of 10 minutes and a unique challenge was created.*
@@ -149,7 +149,7 @@ See below for a template to use as your request body.
 
 ## Request an endorser signature
 Request an endorser signature on the signed did document.
-http://endorser.docker.localhost/api/doc#/wallet/post_wallet_di_add_proof
+- http://endorser.docker.localhost/api/doc#/wallet/post_wallet_di_add_proof
 
 See below for a template to use as your request body.
 - *Again, you will need to use the options you obtained since there's an expiration of 10 minutes and a unique challenge was created.*
@@ -200,7 +200,7 @@ See below for a template to use as your request body.
 
 ## Send the request back to the server
 Now that we have a DID document with a proof set, we can send this back to the did web server to finalize the did registration.
-http://issuer.docker.localhost/api/doc#/did/post_did_web
+- http://server.docker.localhost/docs#/Identifiers/register_did__namespace___identifier__post
 
 If you completed the steps properly and within 10 minutes, your DID will now be available.
 

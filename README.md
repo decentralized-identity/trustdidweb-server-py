@@ -35,6 +35,8 @@ sequenceDiagram
     Issuer Client->>Issuer Client: Create new verification method.
     Issuer Client->>Issuer Client: Sign DID document.
     Issuer Client->>Endorser Agent: Request endorser signature.
+    Endorser Agent->>Endorser Agent: Verify and sign DID document.
+    Endorser Agent->>Issuer Client: Return endorsed DID document.
     Issuer Client->>Trust DID Web Server: Send endorsed DID document.
     Trust DID Web Server->>Trust DID Web Server: Verify endorsed DID document.
 ```

@@ -17,8 +17,11 @@ Once this is all checked, you can clone the repo, move to the demo repository an
 ```bash
 git clone https://github.com/OpSecId/trustdidweb-server-py.git
 cd trustdidweb-server-py/demo/ && ./manage start
+    
+```
 
-# Confirm the services are up and running with the following curl commands
+Confirm the services are up and running with the following curl commands
+```bash
 curl -H Host:server.docker.localhost \
     http://127.0.0.1/server/status | jq .
     

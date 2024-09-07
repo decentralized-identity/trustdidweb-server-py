@@ -1,0 +1,69 @@
+---
+services:
+  server:
+    build:
+      context: ../server
+    environment:
+      DOMAIN: server.${DOMAIN}
+      SECRET_KEY: ${SECRET_KEY}
+      ENDORSER_MULTIKEY: ${ENDORSER_MULTIKEY}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.server.rule=Host(`server.${DOMAIN}`)
+      - traefik.http.routers.server.entrypoints=web
+      - traefik.http.services.server.loadbalancer.server.port=8000
+  issuer:
+    build:
+      context: https://github.com/OpSecId/aries-cloudagent-python.git#pstlouis/add-did-web-register-route
+      dockerfile: docker/Dockerfile
+    entrypoint: ["aca-py", "start"]
+    command: [
+      '--no-ledger',
+      '--no-transport',
+      '--admin', '0.0.0.0', '8020',
+      '--admin-insecure',
+      '--wallet-allow-insecure-seed',
+    ]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.issuer.rule=Host(`issuer.${DOMAIN}`)
+      - traefik.http.routers.issuer.entrypoints=web
+      - traefik.http.services.issuer.loadbalancer.server.port=8020
+  endorser:
+    build:
+      context: https://github.com/OpSecId/aries-cloudagent-python.git#pstlouis/add-did-web-register-route
+      dockerfile: docker/Dockerfile
+    entrypoint: ["aca-py", "start"]
+    command: [
+      '--no-ledger',
+      '--no-transport',
+      '--admin', '0.0.0.0', '8020',
+      '--admin-insecure',
+      '--wallet-allow-insecure-seed',
+    ]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.endorser.rule=Host(`endorser.${DOMAIN}`)
+      - traefik.http.routers.endorser.entrypoints=web
+      - traefik.http.services.endorser.loadbalancer.server.port=8020
+
+  provision:
+    image: curlimages/curl
+    entrypoint: ["/bin/sh","-c"]
+    command:
+      - |
+        curl --retry 5 --retry-connrefused \
+          -X 'POST' 'http://endorser:8020/wallet/did/create' \
+          -d '{"method": "web", "seed": "${ENDORSER_SEED}", "options": {"key_type": "ed25519", "did": "did:web:server.${DOMAIN}"}}'
+
+  traefik:
+    image: traefik:v3.1
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entryPoints.web.address=:80
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

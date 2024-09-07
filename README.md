@@ -9,9 +9,9 @@ The TDW spec: [https://identity.foundation/trustdidweb](https://identity.foundat
 
 This server is for issuing clients to deposit their did documents, did logs and other objects.
 
-Having a seperate server to deposit verificaiotn material will ensure that signing material is isolated and provide a more secured architecture.
+Having a seperate server to deposit verification material will ensure that signing material is isolated and provide a more secured architecture.
 
-This also enables system architects to create rigid governance rules around publishing DID documents and related ressources.
+This also enables system architects to create rigid governance rules around publishing DID documents and related ressources through endorsment.
 
 ## How it works
 *For a demonstration, please see the demo directory*

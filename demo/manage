@@ -19,7 +19,6 @@ usage () {
 EOF
 exit 1
 }
-. .env.demo
 
 COMMAND=${1}
 
@@ -31,11 +30,11 @@ sudo docker compose --env-file .env.demo up --build
 sudo docker compose --env-file .env.demo up --build -d
     ;;
   restart)
-sudo docker compose down -v
+sudo docker compose --env-file .env.demo up down -v
 sudo docker compose --env-file .env.demo up --build -d
     ;;
   stop)
-sudo docker compose down -v
+sudo docker compose --env-file .env.demo up down -v
     ;;
   *)
       usage;;

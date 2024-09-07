@@ -31,9 +31,9 @@ curl -H Host:endorser.docker.localhost \
 ```
 
 *You can visit the following pages in your browser*
-http://issuer.docker.localhost
-http://endorser.docker.localhost
-http://server.docker.localhost/docs
+- http://issuer.docker.localhost
+- http://endorser.docker.localhost
+- http://server.docker.localhost/docs
 
 ## Create a DID
 

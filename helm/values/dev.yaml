@@ -1,9 +1,0 @@
----
-ingress:
-  labels:
-    certbot-managed: "true"
-
-server:
-  host: dev.digitaltrust.vonx.io
-  environment:
-    ENDORSER_MULTIKEY: "z6MkhBoJbVzavFnKza3eP413fCuaCojottETdyqGQz9Moimq"

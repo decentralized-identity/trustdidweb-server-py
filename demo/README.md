@@ -1,12 +1,17 @@
 # TDW Server Demo
 
-## Getting Setup
+There's 3 ways to run this demo:
+- Using the deployed demo instance of the services through the public Postman workspace.
+  - Just head to the [public Postman workspace](https://www.postman.com/bcgov-digital-trust/trust-did-web-server) and follow the instructions.
 
-You will need a **local** installation of the [Postman desktop app](https://www.postman.com/downloads/).
+- Deploying the project locally and using a desktop installation of Postman to execute the requests.
+  - You will need a **local** installation of the [Postman desktop app](https://www.postman.com/downloads/). Once you have this, you can import the [public workspace](https://www.postman.com/bcgov-digital-trust/trust-did-web-server). The workspace also contains additional documentation for runnig this demo.
 
-Once you have this, you can import the [public workspace](https://www.postman.com/bcgov-digital-trust/trust-did-web-server). The workspace also contains additional documentation for runnig this demo.
+- Deploying the project locally and using the OpenAPI web interfaces of each service.
 
-You will also need a docker installation, curl, jq and a bash shell.
+## Setting up you local deployments
+
+You will need a docker installation, curl, jq and a bash shell.
 
 Once this is all checked, you can clone the repo, move to the demo repository and start the services:
 ```bash
@@ -200,6 +205,6 @@ If you get an error, try restarting the demo using the `./manage restart` comman
 
 
 ## Resolve (locally) your new DID
-```json
+```bash
 curl -H Host:server.docker.localhost http://127.0.0.1/demo/issuer/did.json | jq .
 ```

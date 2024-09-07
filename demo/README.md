@@ -15,8 +15,8 @@ You will need a docker installation, curl, jq and a bash shell.
 
 Once this is all checked, you can clone the repo, move to the demo repository and start the services:
 ```bash
-git clone https://github.com/decentralized-identity/trustdidweb-server-py.git
-cd trustdidweb-server-py/demo/ && ./start
+git clone https://github.com/OpSecId/trustdidweb-server-py.git
+cd trustdidweb-server-py/demo/ && ./manage start
 
 # Confirm the services are up and running with the following curl commands
 curl -H Host:server.docker.localhost \

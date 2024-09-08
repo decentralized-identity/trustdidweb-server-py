@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from app.models.web_requests import RegisterDID
 from config import settings
-from app.plugins import AskarVerifier, AskarStorage
+from app.plugins import AskarVerifier, AskarStorage, TrustDidWeb
 from app.dependencies import (
     identifier_available,
     did_document_exists,
@@ -15,12 +15,21 @@ router = APIRouter()
 
 @router.get("/{namespace}/{identifier}", summary="Request DID configuration.")
 async def get_did(
-    namespace: str, identifier: str, dependency=Depends(identifier_available)
+    namespace: str, identifier: str, logs: bool = False, dependency=Depends(identifier_available)
 ):
+    did_doc = create_did_doc_template(namespace, identifier)
+    if logs:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "logEntry": TrustDidWeb().provision_log_entry(did_doc),
+                "options": AskarVerifier().create_proof_config(),
+            },
+        )
     return JSONResponse(
         status_code=200,
         content={
-            "document": create_did_doc_template(namespace, identifier),
+            "document": did_doc,
             "options": AskarVerifier().create_proof_config(),
         },
     )

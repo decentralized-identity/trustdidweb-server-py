@@ -21,6 +21,7 @@ class Settings(BaseSettings):
         if "POSTGRES_URI" in os.environ
         else "sqlite://app.db"
     )
+    SCID_PLACEHOLDER: str = '{SCID}'
 
 
 settings = Settings()

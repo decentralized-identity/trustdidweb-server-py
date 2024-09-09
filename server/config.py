@@ -9,7 +9,7 @@ load_dotenv(os.path.join(basedir, ".env"))
 
 
 class Settings(BaseSettings):
-    PROJECT_TITLE: str = "aries-did-web-server"
+    PROJECT_TITLE: str = "trustdidweb-server-py"
     PROJECT_VERSION: str = "v0"
 
     DOMAIN: str = os.environ["DOMAIN"]

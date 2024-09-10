@@ -14,7 +14,7 @@ import json
 router = APIRouter(tags=["Identifiers"])
 
 
-@router.post("/did/request", summary="Request new identifier.")
+@router.post("/identifier/request", summary="Request new identifier.")
 async def request_did(request_body: RequestDID):
     did = to_did_web(request_body.model_dump()['namespace'], request_body.model_dump()['identifier'])
     await location_available(did)
@@ -27,7 +27,7 @@ async def request_did(request_body: RequestDID):
     )
 
 
-@router.post("/did/register", summary="Register identifier.")
+@router.post("/identifier/register", summary="Register identifier.")
 async def upgrade_did(request_body: RegisterDID):
     did_document = request_body.model_dump()['didDocument']
     await location_available(did_document['id'])
@@ -41,7 +41,7 @@ async def upgrade_did(request_body: RegisterDID):
     )
 
 
-@router.post("/did/upgrade", summary="Upgrade to Trust DID Web.")
+@router.post("/identifier/upgrade", summary="Upgrade to Trust DID Web.")
 async def request_did_upgrade(request_body: RequestDIDUpgrade):
     await did_document_exists(request_body.model_dump()['id'])
     did_document = await AskarStorage().fetch("didDocument", request_body.model_dump()['id'])
@@ -55,7 +55,7 @@ async def request_did_upgrade(request_body: RequestDIDUpgrade):
     )
 
 
-@router.post("/did/log", summary="Publish log entry.")
+@router.post("/identifier/log", summary="Publish log entry.")
 async def publish_log(request_body: PublishLogEntry, response: Response):
     log_entry = request_body.model_dump()['logEntry']
     did_tdw = log_entry[3]['value']['id']

@@ -1,6 +1,6 @@
 FROM python:3.12
 
-WORKDIR /aries-did-web-server
+WORKDIR /trustdidweb-server-py
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV

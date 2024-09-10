@@ -1,4 +1,4 @@
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Any
 from pydantic import BaseModel, Field
 from .di_proof import DataIntegrityProof
 
@@ -18,7 +18,10 @@ class Service(BaseModel):
 
 class DidDocument(BaseModel):
     context: Union[str, List[str]] = Field(
-        ["https://www.w3.org/ns/did/v1"], alias="@context"
+        [
+            "https://www.w3.org/ns/did/v1",
+            "https://w3id.org/security/multikey/v1"
+            ], alias="@context"
     )
     id: str = Field(None)
     controller: str = Field(None)

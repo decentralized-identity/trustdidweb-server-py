@@ -1,6 +1,7 @@
 annotated-types==0.7.0
 anyio==4.4.0
 aries-askar==0.3.2
+attrs==24.2.0
 base58==2.1.1
 bases==0.3.0
 black==24.8.0
@@ -13,6 +14,7 @@ fastapi==0.112.0
 h11==0.14.0
 idna==3.7
 inflection==0.5.1
+jsonlines==4.0.0
 multiformats==0.3.1.post4
 multiformats-config==0.3.1
 mypy-extensions==1.0.0

@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from aries_askar import Store, error, Key
 from aries_askar.bindings import LocalKeyHandle
 from config import settings
-from app.utilities import create_did_doc
+from app.models.did_document import DidDocument
 import hashlib
 import uuid
 from multiformats import multibase
@@ -21,9 +21,22 @@ class AskarStorage:
 
     async def provision(self, recreate=False):
         await Store.provision(self.db, "raw", self.key, recreate=recreate)
-        endorser_did_doc = create_did_doc(
-            did=settings.DID_WEB_BASE, multikey=settings.ENDORSER_MULTIKEY
-        )
+        did = settings.DID_WEB_BASE
+        kid = f'{settings.DID_WEB_BASE}#key-01'
+        endorser_did_doc = DidDocument(
+            id=did,
+            verificationMethod=[
+                {
+                    "id": kid,
+                    "type": "Multikey",
+                    "controller": did,
+                    "publicKeyMultibase": settings.ENDORSER_MULTIKEY,
+                }
+            ],
+            authentication=[kid],
+            assertionMethod=[kid],
+            service=[],
+        ).dict(by_alias=True, exclude_none=True)
         try:
             await self.store("didDocument", settings.DID_WEB_BASE, endorser_did_doc)
         except:
@@ -78,22 +91,26 @@ class AskarVerifier:
                 alg="ed25519", public=bytes(bytearray(multibase.decode(multikey))[2:])
             )
 
-    def create_proof_config(self):
+    def create_proof_config(self, challenge=None):
         created = str(datetime.now(timezone.utc).isoformat("T", "seconds"))
-        expires = str(
-            (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat(
-                "T", "seconds"
-            )
-        )
-        return {
+        proof_options = {
             "type": self.type,
             "cryptosuite": self.cryptosuite,
             "proofPurpose": self.purpose,
             "created": created,
-            "expires": expires,
             "domain": settings.DOMAIN,
-            "challenge": self.create_challenge(created + expires),
+            "challenge": challenge,
         }
+        if not challenge:
+            expires = str(
+                (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat(
+                    "T", "seconds"
+                )
+            )
+            proof_options['expires'] = expires
+            proof_options['challenge'] = self.create_challenge(created + expires)
+            
+        return proof_options
 
     def create_challenge(self, value):
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, settings.SECRET_KEY + value))

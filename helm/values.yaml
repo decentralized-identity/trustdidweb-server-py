@@ -7,7 +7,7 @@ selectorLabels: {}
 
 server:
   image:
-    repository: ghcr.io/bcgov/trustdidweb-server-py
+    repository: ghcr.io/OpSecId/trustdidweb-server-py
     pullPolicy: IfNotPresent
     pullSecrets: []
     tag: 0.1.0

@@ -20,6 +20,10 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   PLATFORMS: ${{ inputs.platforms || 'linux/amd64,linux/arm64' }}
 

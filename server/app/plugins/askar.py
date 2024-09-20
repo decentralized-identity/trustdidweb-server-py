@@ -1,6 +1,6 @@
 import json
 from fastapi import HTTPException
-from aries_askar import Store, error, Key
+from aries_askar import Store, Key
 from aries_askar.bindings import LocalKeyHandle
 from config import settings
 from app.utilities import create_did_doc
@@ -78,8 +78,7 @@ class AskarVerifier:
                 alg="ed25519", public=bytes(bytearray(multibase.decode(multikey))[2:])
             )
 
-    def create_proof_config(self):
-        created = str(datetime.now(timezone.utc).isoformat("T", "seconds"))
+    def create_proof_config(self, did):
         expires = str(
             (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat(
                 "T", "seconds"
@@ -89,17 +88,24 @@ class AskarVerifier:
             "type": self.type,
             "cryptosuite": self.cryptosuite,
             "proofPurpose": self.purpose,
-            "created": created,
+            "verificationMethod": f"{settings.DID_WEB_BASE}#key-01",
             "expires": expires,
             "domain": settings.DOMAIN,
-            "challenge": self.create_challenge(created + expires),
+            "challenge": self.create_challenge(did + expires),
         }
 
     def create_challenge(self, value):
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, settings.SECRET_KEY + value))
 
-    def assert_proof_options(self, proof):
+    def assert_proof_options(self, proof, did):
         try:
+            assert datetime.fromisoformat(proof["expires"]) > datetime.now(
+                timezone.utc
+            ), "Proof expired."
+            assert proof["domain"] == settings.DOMAIN, "Domain mismatch."
+            assert proof["challenge"] == self.create_challenge(
+                did + proof["expires"]
+            ), "Challenge mismatch."
             assert proof["type"] == self.type, f"Expected {self.type} proof type."
             assert (
                 proof["cryptosuite"] == self.cryptosuite
@@ -107,27 +113,21 @@ class AskarVerifier:
             assert (
                 proof["proofPurpose"] == self.purpose
             ), f"Expected {self.purpose} proof purpose."
-            assert proof["domain"] == settings.DOMAIN, "Domain mismatch."
-            assert proof["challenge"] == self.create_challenge(
-                proof["created"] + proof["expires"]
-            ), "Challenge mismatch."
-            assert datetime.fromisoformat(proof["created"]) < datetime.now(
-                timezone.utc
-            ), "Invalid proof creation timestamp."
-            assert datetime.fromisoformat(proof["expires"]) > datetime.now(
-                timezone.utc
-            ), "Proof expired."
-            assert datetime.fromisoformat(proof["created"]) < datetime.fromisoformat(
-                proof["expires"]
-            ), "Proof validity period invalid."
         except AssertionError as msg:
             raise HTTPException(status_code=400, detail=str(msg))
 
     def verify_proof(self, document, proof):
-        self.assert_proof_options(proof)
-        assert (
-            proof["verificationMethod"].split("#")[0] == document["id"]
-            or proof["verificationMethod"].split("#")[0] == settings.DID_WEB_BASE
+        self.assert_proof_options(proof, document['id'])
+
+        # Set multikey to endorser multikey if verificationMethod matches else expect did:key:
+        multikey = (
+            settings.ENDORSER_MULTIKEY
+            if proof["verificationMethod"] == f'{settings.DID_WEB_BASE}#key-01'
+            else proof["verificationMethod"].split("#")[-1]
+        )
+
+        self.key = Key(LocalKeyHandle()).from_public_bytes(
+            alg="ed25519", public=bytes(bytearray(multibase.decode(multikey))[2:])
         )
 
         proof_options = proof.copy()

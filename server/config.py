@@ -1,7 +1,5 @@
 from pydantic_settings import BaseSettings
 import os
-import uuid
-import secrets
 from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))

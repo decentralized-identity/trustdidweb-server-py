@@ -19,6 +19,6 @@ entries:
     name: trustdidweb-server-py
     type: application
     urls:
-    - https://github.com/OpSecId/trustdidweb-server-py/releases/download/trustdidweb-server-py-0.0.2/trustdidweb-server-py-0.0.2.tgz
+    - https://github.com/decentralized-identity/trustdidweb-server-py/releases/download/trustdidweb-server-py-0.0.2/trustdidweb-server-py-0.0.2.tgz
     version: 0.0.2
 generated: "2024-09-11T14:15:08.445683052Z"

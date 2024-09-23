@@ -33,3 +33,4 @@ tomli==2.0.1
 typing-validation==1.2.11.post4
 typing_extensions==4.12.2
 uvicorn==0.30.6
+validators==0.34.0

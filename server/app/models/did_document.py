@@ -1,8 +1,18 @@
 from typing import Union, List, Dict, Any
 from pydantic import BaseModel, Field, field_validator
 from .di_proof import DataIntegrityProof
+from multiformats import multibase
 import re
+import validators
 
+
+DID_WEB_REGEX = re.compile(
+    "did:web:((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)"
+)
+
+DID_WEB_ID_REGEX = re.compile(
+    "did:web:((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)#([a-z0-9._%-]+)"
+)
 
 class BaseModel(BaseModel):
     def model_dump(self, **kwargs) -> Dict[str, Any]:
@@ -11,15 +21,54 @@ class BaseModel(BaseModel):
 
 class VerificationMethod(BaseModel):
     id: str = Field()
-    type: Union[str, List[str]] = Field()
+    type: Union[str, List[str]] = Field('Multikey')
     controller: str = Field()
     publicKeyMultibase: str = Field()
+
+    @field_validator("id")
+    @classmethod
+    def verification_method_id_validator(cls, value):
+        # assert DID_WEB_ID_REGEX.match(value), "Expected controller to be a DID."
+        return value
+
+    @field_validator("type")
+    @classmethod
+    def verification_method_type_validator(cls, value):
+        assert value == 'Multikey', 'Expected type Multikey'
+        return value
+
+    @field_validator("controller")
+    @classmethod
+    def verification_method_controller_validator(cls, value):
+        assert DID_WEB_REGEX.match(value), "Expected controller to be a DID."
+        return value
+
+    @field_validator("publicKeyMultibase")
+    @classmethod
+    def verification_method_public_key_validator(cls, value):
+        try:
+            multibase.decode(value)
+        except:
+            assert False, f'Unable to decode public key multibase value {value}'
+        return value
 
 
 class Service(BaseModel):
     id: str = Field()
     type: Union[str, List[str]] = Field()
     serviceEndpoint: str = Field()
+
+    @field_validator("id")
+    @classmethod
+    def service_id_validator(cls, value):
+        assert DID_WEB_ID_REGEX.match(value), "Expected controller to be a DID."
+        return value
+
+    @field_validator("serviceEndpoint")
+    @classmethod
+    def service_endpoint_validator(cls, value):
+        assert validators.url(value) , f"Invalid service endpoint {value}."
+        return value
 
 
 class DidDocument(BaseModel):
@@ -39,34 +88,31 @@ class DidDocument(BaseModel):
 
     @field_validator("context")
     @classmethod
-    def validate_context(cls, value):
+    def context_validator(cls, value):
         assert value[0] == "https://www.w3.org/ns/did/v1", "Invalid context."
         return value
 
     @field_validator("id")
     @classmethod
-    def validate_id(cls, value):
-        DID_REGEX = re.compile(
-            "did:([a-z0-9]+):((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)"
-        )
-        assert DID_REGEX.match(value), "Expected id to be a DID."
+    def id_validator(cls, value):
+        assert DID_WEB_REGEX.match(value), "Expected id to be a DID."
         return value
 
     @field_validator("authentication")
     @classmethod
-    def validate_authentication(cls, value):
+    def authentication_validator(cls, value):
         assert len(value) >= 1, "Expected at least one authentication method."
         return value
 
     @field_validator("assertionMethod")
     @classmethod
-    def validate_assertion_method(cls, value):
+    def assertion_method_validator(cls, value):
         assert len(value) >= 1, "Expected at least one assertion method."
         return value
 
     @field_validator("verificationMethod")
     @classmethod
-    def validate_verification_method(cls, value):
+    def verification_method_validator(cls, value):
         assert len(value) >= 1, "Expected at least one verification method."
         return value
 
@@ -76,6 +122,6 @@ class SecuredDidDocument(DidDocument):
 
     @field_validator("proof")
     @classmethod
-    def validate_proof(cls, value):
+    def proof_validator(cls, value):
         assert len(value) == 2, "Expected proof set."
         return value

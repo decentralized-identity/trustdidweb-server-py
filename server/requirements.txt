@@ -20,7 +20,7 @@ packaging==24.1
 pathspec==0.12.1
 platformdirs==4.3.2
 pycparser==2.22
-pydantic==2.8.2
+pydantic==2.9.2
 pydantic-settings==2.4.0
 pydantic_core==2.20.1
 pydid==0.5.1

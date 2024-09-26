@@ -1,0 +1,20 @@
+<html lang="en">
+{% include 'layouts/head.jinja' %}
+
+<body class="d-flex flex-column">
+    <div class="page page-center">
+        {% include 'layouts/headers.jinja' %}
+        <div class="page-wrapper">
+        
+        {% block page %}{% endblock %}
+        {% include 'layouts/footer.jinja' %}
+
+        </div>
+    </div>
+    <!-- Libs JS -->
+    <!-- Tabler Core -->
+    <script src="{{ url_for('static', filename='js/tabler.min.js') }}" defer=""></script>
+
+</body>
+
+</html>

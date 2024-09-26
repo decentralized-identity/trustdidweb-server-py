@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import JSONResponse
-from app.routers import identifiers
+from app.routers import identifiers, registrations
 from config import settings
 from app.plugins import AskarStorage
 
@@ -22,6 +22,7 @@ async def get_main_did_document():
 
 
 api_router.include_router(identifiers.router, tags=["Identifiers"])
+api_router.include_router(registrations.router, tags=["Registrations"])
 
 
 app.include_router(api_router)

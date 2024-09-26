@@ -1,0 +1,30 @@
+<html lang="en">
+{% include 'layouts/head.jinja' %}
+
+<body class=" d-flex flex-column">
+    <div class="page page-center">
+        <div class="container container-tight py-4">
+            <div class="text-center mb-4">
+                <a href="." class="navbar-brand navbar-brand-autodark">
+                </a>
+            </div>
+            <form method="post" autocomplete="off" novalidate="" data-bitwarden-watching="1">
+                {{ form.hidden_tag() }}
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <img src="{{ qrcode(session['invitation']) }}">
+                    </div>
+                    <div>
+                        {{ form.submit(class='btn w-50') }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Libs JS -->
+    <!-- Tabler Core -->
+    <script src="{{ url_for('static', filename='js/tabler.min.js') }}" defer=""></script>
+
+</body>
+
+</html>

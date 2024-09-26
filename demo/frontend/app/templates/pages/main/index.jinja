@@ -1,0 +1,91 @@
+{% extends 'layouts/base.jinja' %}
+{% block page %}
+<!-- Page header -->
+{# <div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Admin Dashboard
+                </h2>
+            </div>
+        </div>
+    </div>
+</div> #}
+<!-- Page body -->
+<div class="page-body">
+    <div class="container container-tight py-4">
+        <!-- Content here -->
+
+        <div class="mb-3">
+            <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-register-issuer">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-auto">
+                            <span class="avatar rounded"></span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium">Register an Issuer</div>
+                            <div class="text-secondary">Trust DID Web</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% include 'pages/main/modals/register_issuer.jinja' %}
+        </div>
+
+        <div class="mb-3">
+            <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-register-credential">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-auto">
+                            <span class="avatar rounded"></span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium">Register a Credential</div>
+                            <div class="text-secondary">Verifiable Credential 2.0</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% include 'pages/main/modals/register_credential.jinja' %}
+        </div>
+
+        <div class="mb-3">
+            <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-issue-credential">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-auto">
+                            <span class="avatar rounded"></span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium">Publish a Credential</div>
+                            <div class="text-secondary">Data Integrity Proof</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% include 'pages/main/modals/issue_credential.jinja' %}
+        </div>
+
+        <div class="mb-3">
+            <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-view-credential">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-auto">
+                            <span class="avatar rounded"></span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium">View a Credential</div>
+                            <div class="text-secondary">OCA Render Method</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% include 'pages/main/modals/view_credential.jinja' %}
+        </div>
+
+    </div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+<div id="modal-register-issuer" class="modal modal-blur fade" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Issuer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                {{ register_issuer_form.hidden_tag() }}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ register_issuer_form.namespace.label(class='form-label required') }}
+                        <div class="input-group input-group-flat">
+                            <span class="input-group-text">
+                                did:web:digitaltrust.vonx.io:
+                            </span>
+                            {{ register_issuer_form.namespace(class='form-control ps-0') }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ register_issuer_form.identifier.label(class='form-label required') }}
+                        {{ register_issuer_form.identifier(class='form-control') }}
+                    </div>
+                    <div class="mb-3">
+                        {{ register_issuer_form.name.label(class='form-label') }}
+                        {{ register_issuer_form.name(class='form-control') }}
+                    </div>
+                    <div class="mb-3">
+                        {{ register_issuer_form.url.label(class='form-label') }}
+                        {{ register_issuer_form.url(class='form-control') }}
+                    </div>
+                    <div class="mb-3">
+                        {{ register_issuer_form.description.label(class='form-label') }}
+                        {{ register_issuer_form.description(class='form-control') }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    {{ register_issuer_form.submit(class='btn btn-primary ms-auto')  }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

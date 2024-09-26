@@ -1,9 +1,23 @@
 ---
 services:
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    environment:
+      DOMAIN: server.${DOMAIN}
+      SECRET_KEY: ${SECRET_KEY}
+      ENDORSER_MULTIKEY: ${ENDORSER_MULTIKEY}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend.rule=Host(`demo.${DOMAIN}`)
+      - traefik.http.routers.frontend.entrypoints=web
+      - traefik.http.services.frontend.loadbalancer.server.port=5000
+
   server:
     build:
-      context: ../
-      dockerfile: docker/Dockerfile
+      context: ../server
+      dockerfile: Dockerfile
     environment:
       DOMAIN: server.${DOMAIN}
       SECRET_KEY: ${SECRET_KEY}
@@ -13,49 +27,28 @@ services:
       - traefik.http.routers.server.rule=Host(`server.${DOMAIN}`)
       - traefik.http.routers.server.entrypoints=web
       - traefik.http.services.server.loadbalancer.server.port=8000
-  issuer:
+
+  agent:
     build:
-      context: https://github.com/OpSecId/aries-cloudagent-python.git#pstlouis/add-did-web-register-route
+      context: https://github.com/OpSecId/aries-cloudagent-python.git#data-integrity-routes
       dockerfile: docker/Dockerfile
     entrypoint: ["aca-py", "start"]
     command: [
       '--no-ledger',
       '--no-transport',
+      '--auto-provision',
+      '--seed', 'FAbqv7L9eDhiQKR2afAGZMy4J^wrA*X*',
+      '--wallet-type', 'askar',
+      '--wallet-name', 'askar',
+      '--wallet-key', 'askar',
       '--admin', '0.0.0.0', '8020',
       '--admin-insecure',
-      '--wallet-allow-insecure-seed',
     ]
     labels:
       - traefik.enable=true
-      - traefik.http.routers.issuer.rule=Host(`issuer.${DOMAIN}`)
-      - traefik.http.routers.issuer.entrypoints=web
-      - traefik.http.services.issuer.loadbalancer.server.port=8020
-  endorser:
-    build:
-      context: https://github.com/OpSecId/aries-cloudagent-python.git#pstlouis/add-did-web-register-route
-      dockerfile: docker/Dockerfile
-    entrypoint: ["aca-py", "start"]
-    command: [
-      '--no-ledger',
-      '--no-transport',
-      '--admin', '0.0.0.0', '8020',
-      '--admin-insecure',
-      '--wallet-allow-insecure-seed',
-    ]
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.endorser.rule=Host(`endorser.${DOMAIN}`)
+      - traefik.http.routers.endorser.rule=Host(`agent.${DOMAIN}`)
       - traefik.http.routers.endorser.entrypoints=web
       - traefik.http.services.endorser.loadbalancer.server.port=8020
-
-  provision:
-    image: curlimages/curl
-    entrypoint: ["/bin/sh","-c"]
-    command:
-      - |
-        curl --retry 5 --retry-connrefused \
-          -X 'POST' 'http://endorser:8020/wallet/did/create' \
-          -d '{"method": "web", "seed": "${ENDORSER_SEED}", "options": {"key_type": "ed25519", "did": "did:web:server.${DOMAIN}"}}'
 
   traefik:
     image: traefik:v3.1

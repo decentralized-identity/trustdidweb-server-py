@@ -26,7 +26,12 @@ async def request_did(
         return JSONResponse(
             status_code=200,
             content={
-                "id": did,
+                "didDocument": {
+                    "@context": [
+                        "https://www.w3.org/ns/did/v1"
+                    ],
+                    "id": did
+                },
                 "proofOptions": AskarVerifier().create_proof_config(did),
             },
         )
@@ -44,8 +49,8 @@ async def register_did(
     proof_set = did_document.pop("proof", None)
     for proof in proof_set:
         AskarVerifier().verify_proof(did_document, proof)
-        if proof['verificationMethod'].startswith('did:key:'):
-            authorized_key = proof['verificationMethod'].split('#')[-1]
+        # if proof['proofPurpose'].startswith('did:key:'):
+        #     authorized_key = proof['verificationMethod'].split('#')[-1]
             
     # Ensure DID is available
     did = did_document["id"]
@@ -55,8 +60,9 @@ async def register_did(
         )
         
     # Store document and authorized key
-    await AskarStorage().store("didDocument", did, did_document)
-    await AskarStorage().store("authorizedKey", did, authorized_key)
+    # await AskarStorage().store("didDocument", did, did_document)
+    await AskarStorage().store("didRegistration", did, did_document)
+    # await AskarStorage().store("authorizedKey", did, authorized_key)
     return JSONResponse(status_code=201, content={"didDocument": did_document})
 
 

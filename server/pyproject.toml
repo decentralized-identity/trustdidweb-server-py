@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "trustdidweb-server-py"
+version = "0.0.5"
+description = ""
+authors = []
+readme = "../README.md"
+packages = [{ include = "app" }]
+repository = "https://github.com/decentralized-identity/trustdidweb-server-py"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+annotated-types = "^0.7.0"
+anyio = "^4.4.0"
+aries-askar = "^0.3.2"
+bases = "0.3.0"
+cached-property = "^1.5.2"
+canonicaljson = "^2.0.0"
+click = "^8.1.7"
+fastapi = "^0.112.0"
+h11 = "^0.14.0"
+idna = "^3.7"
+inflection = "^0.5.1"
+multiformats = "0.3.1.post4"
+multiformats-config = "^0.3.1"
+pydantic = "^2.8.2"
+pydantic-settings = "^2.4.0"
+pydantic-core = "^2.20.1"
+python-dotenv = "^1.0.1"
+sniffio = "^1.3.1"
+starlette = "^0.37.2"
+typing-validation = "1.2.11.post4"
+typing-extensions = "^4.12.2"
+uvicorn = "0.30.6"
+validators = "^0.34.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.6.8"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

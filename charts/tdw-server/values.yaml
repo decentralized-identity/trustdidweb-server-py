@@ -1,18 +1,15 @@
 ---
-nameOverride: "trustdidweb-server-py"
-fullnameOverride: "trustdidweb-server-py"
+nameOverride: "tdw-server"
+fullnameOverride: "tdw-server"
 ingressSuffix: ""
 
 selectorLabels: {}
 
 server:
   image:
-    repository: ghcr.io/OpSecId/trustdidweb-server-py
+    repository: ghcr.io/decentralized-identity/trustdidweb-server-py
     pullPolicy: IfNotPresent
     pullSecrets: []
-    tag: 0.1.0
-
-  host: ""
 
   replicaCount: 1
 
@@ -23,7 +20,7 @@ server:
   service:
     type: ClusterIP
     apiPort: 8000
-    servicePort: 80
+    servicePort: 8000
 
   resources:
     limits:
@@ -37,23 +34,14 @@ server:
     ingress:
       podSelector: {}
 
-  environment:
-    DOMAIN: ""
-    ENDORSER_MULTIKEY: ""
-
 postgresql:
   enabled: true
-  fullnameOverride: "trustdidweb-server-py-postgresql"
-  nameOverride: "trustdidweb-server-py-postgresql"
+  fullnameOverride: "tdw-server-postgresql"
+  nameOverride: "tdw-server-postgresql"
   architecture: standalone
   auth:
     enablePostgresUser: true
-    existingSecret: ""
-    secretKeys:
-      adminPasswordKey: admin-password
-      userPasswordKey: database-password
-    database: trustdidweb-server-py
-    username: trustdidweb-server-py
+    username: "tdw-server"
 
   ## PostgreSQL Primary parameters
   primary:

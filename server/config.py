@@ -17,10 +17,11 @@ class Settings(BaseSettings):
     ENDORSER_MULTIKEY: str = os.environ["ENDORSER_MULTIKEY"]
 
     ASKAR_DB: str = (
-        os.environ["POSTGRES_URI"]
+        os.environ["POSTGRES_URI"]+'/tdw-server'
         if "POSTGRES_URI" in os.environ
         else "sqlite://app.db"
     )
+    SCID_PLACEHOLDER: str = '{SCID}'
 
 
 settings = Settings()

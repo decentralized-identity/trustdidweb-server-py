@@ -1,5 +1,6 @@
 # Local Databases
 app.db
+tmp/
 
 # Linting
 .ruff_cache/

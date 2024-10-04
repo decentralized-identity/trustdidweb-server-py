@@ -46,3 +46,10 @@ sequenceDiagram
 - whois VP support
 - AnonCreds objects support
 - Status lists support
+
+```bash
+In a web where trust is born anew,
+Decentralized keys unlock our view.
+We shape the code, and break the chain,
+Trust in our hands will always reign.
+```

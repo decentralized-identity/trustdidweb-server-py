@@ -30,11 +30,11 @@ sudo docker compose --env-file .env.demo up --build
 sudo docker compose --env-file .env.demo up --build -d
     ;;
   restart)
-sudo docker compose --env-file .env.demo up down -v
+sudo docker compose --env-file .env.demo down -v
 sudo docker compose --env-file .env.demo up --build -d
     ;;
   stop)
-sudo docker compose --env-file .env.demo up down -v
+sudo docker compose --env-file .env.demo down -v
     ;;
   *)
       usage;;

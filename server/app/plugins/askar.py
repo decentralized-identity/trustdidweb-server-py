@@ -71,6 +71,16 @@ class AskarVerifier:
             "domain": settings.DOMAIN,
             "challenge": self.create_challenge(did + expires),
         }
+        if not challenge:
+            expires = str(
+                (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat(
+                    "T", "seconds"
+                )
+            )
+            proof_options['expires'] = expires
+            proof_options['challenge'] = self.create_challenge(created + expires)
+            
+        return proof_options
 
     def create_challenge(self, value):
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, settings.SECRET_KEY + value))

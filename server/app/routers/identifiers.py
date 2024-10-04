@@ -1,59 +1,91 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from app.models.web_requests import RegisterDID
+from app.models.web_schemas import RegisterDID
 from config import settings
 from app.plugins import AskarVerifier, AskarStorage
-from app.dependencies import (
-    identifier_available,
-    did_document_exists,
-    valid_did_registration,
-)
-from app.utilities import create_did_doc_template
+from app.dependencies import identifier_available, did_document_exists
 
-router = APIRouter()
+router = APIRouter(tags=["Identifiers"])
 
 
-@router.get("/{namespace}/{identifier}", summary="Request DID configuration.")
-async def get_did(
-    namespace: str, identifier: str, dependency=Depends(identifier_available)
+@router.get("/")
+async def request_did(
+    namespace: str = None,
+    identifier: str = None,
 ):
-    return JSONResponse(
-        status_code=200,
-        content={
-            "document": create_did_doc_template(namespace, identifier),
-            "options": AskarVerifier().create_proof_config(),
-        },
-    )
+    if namespace and identifier:
+        did = f"{settings.DID_WEB_BASE}:{namespace}:{identifier}"
+        await identifier_available(did)
+        return JSONResponse(
+            status_code=200,
+            content={
+                "didDocument": {
+                    "@context": [
+                        "https://www.w3.org/ns/did/v1"
+                    ],
+                    "id": did
+                },
+                "proofOptions": AskarVerifier().create_proof_config(did),
+            },
+        )
+
+    raise HTTPException(status_code=400, detail="Missing request information.")
 
 
-@router.post("/{namespace}/{identifier}", summary="Register DID.")
+@router.post("/{namespace}/{identifier}")
 async def register_did(
-    request_body: RegisterDID,
-    namespace: str,
-    identifier: str,
-    did_document=Depends(valid_did_registration),
+    namespace: str, identifier: str, request_body: RegisterDID,
 ):
-    await AskarStorage().store("didDocument", f"{namespace}:{identifier}", did_document)
-    return JSONResponse(status_code=201, content={"didDocument": did_document})
+    did_document = request_body.model_dump()['didDocument']
+    did = f"{settings.DID_WEB_BASE}:{namespace}:{identifier}"
+    
+    await identifier_available(did)
+        
+    # Ensure correct endpoint is called
+    if did_document['id'] != did:
+        raise HTTPException(status_code=400, detail="Location mismatch.")
+        
+    # Assert proof set
+    proof_set = did_document.pop("proof", None)
+    if len(proof_set) != 2:
+        raise HTTPException(status_code=400, detail="Expecting proof set.")
+    
+    # Find proof matching endorser
+    endorser_proof = next((
+        proof for proof in proof_set 
+        if proof['verificationMethod'] == 
+        f"did:key:{settings.ENDORSER_MULTIKEY}#{settings.ENDORSER_MULTIKEY}"
+        ), None)
+    
+    # Find proof matching client
+    client_proof = next((
+        proof for proof in proof_set 
+        if proof['verificationMethod'] != 
+        f"did:key:{settings.ENDORSER_MULTIKEY}#{settings.ENDORSER_MULTIKEY}"
+        ), None)
+    
+    if client_proof and endorser_proof:
+        # Verify proofs
+        AskarVerifier().verify_proof(did_document, client_proof)
+        AskarVerifier().verify_proof(did_document, endorser_proof)
+        authorized_key = client_proof['verificationMethod'].split('#')[-1]
+        
+        # TODO implement registration queue
+        # await AskarStorage().store("didRegistration", did, did_document)
+        
+        # Store document and authorized key
+        await AskarStorage().store("didDocument", did, did_document)
+        await AskarStorage().store("authorizedKey", did, authorized_key)
+        return JSONResponse(status_code=201, content={"didDocument": did_document})
+    
+    raise HTTPException(status_code=400, detail="Missing expected proof.")
 
-
-@router.put("/{namespace}/{identifier}", summary="Update DID document.")
-async def update_did(
-    namespace: str, identifier: str, dependency=Depends(did_document_exists)
+@router.get("/{namespace}/{identifier}/did.json", include_in_schema=False)
+async def get_did_document(
+    namespace: str, identifier: str
 ):
-    raise HTTPException(status_code=501, detail="Not implemented.")
-
-
-@router.delete("/{namespace}/{identifier}", summary="Archive DID.")
-async def delete_did(
-    namespace: str, identifier: str, dependency=Depends(did_document_exists)
-):
-    raise HTTPException(status_code=501, detail="Not implemented.")
-
-
-@router.get("/{namespace}/{identifier}/did.json", summary="Get DID document.")
-async def get_did(
-    namespace: str, identifier: str, dependency=Depends(did_document_exists)
-):
-    did_doc = await AskarStorage().fetch("didDocument", f"{namespace}:{identifier}")
-    return JSONResponse(status_code=200, content=did_doc)
+    did = f"{settings.DID_WEB_BASE}:{namespace}:{identifier}"
+    did_doc = await AskarStorage().fetch("didDocument", did)
+    if did_doc:
+        return JSONResponse(status_code=200, content=did_doc)
+    raise HTTPException(status_code=404, detail="Ressource not found.")

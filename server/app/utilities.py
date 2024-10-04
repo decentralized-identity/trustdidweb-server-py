@@ -1,13 +1,18 @@
 from app.models.did_document import DidDocument
 from config import settings
 
-def create_did_doc(did, multikey, kid='key-01'):
+
+def derive_did(namespace, identifier):
+    return f"{settings.DID_WEB_BASE}:{namespace}:{identifier}"
+
+
+def create_did_doc(did, multikey, kid="key-01"):
     return DidDocument(
         id=did,
         verificationMethod=[
             {
                 "id": kid,
-                "type": "MultiKey",
+                "type": "Multikey",
                 "controller": did,
                 "publicKeyMultibase": multikey,
             }
@@ -15,18 +20,13 @@ def create_did_doc(did, multikey, kid='key-01'):
         authentication=[kid],
         assertionMethod=[kid],
         service=[],
-    ).dict(by_alias=True, exclude_none=True)
-
-def create_did_doc_template(namespace, identifier):
-    return DidDocument(
-        id=f"{settings.DID_WEB_BASE}:{namespace}:{identifier}",
-    ).dict(by_alias=True, exclude_none=True)
+    ).model_dump()
 
 
 def find_key(did_doc, kid):
     return next(
         (
-            vm['publicKeyMultibase']
+            vm["publicKeyMultibase"]
             for vm in did_doc["verificationMethod"]
             if vm["id"] == kid
         ),
@@ -34,12 +34,8 @@ def find_key(did_doc, kid):
     )
 
 
-def find_proof(proofs, kid):
+def find_proof(proof_set, kid):
     return next(
-        (
-            proof
-            for proof in proofs
-            if proof["verificationMethod"] == kid
-        ),
+        (proof for proof in proof_set if proof["verificationMethod"] == kid),
         None,
     )

@@ -1,0 +1,15 @@
+---
+server:
+  image:
+    tag: ""
+
+  host: ""
+
+  environment:
+    SECRET_KEY: ""
+    ENDORSER_MULTIKEY: ""
+
+
+postgresql:
+  auth:
+    password: ""

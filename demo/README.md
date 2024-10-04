@@ -26,17 +26,13 @@ Confirm the services are up and running with the following curl commands
 curl -H Host:server.docker.localhost \
     http://127.0.0.1/server/status | jq .
     
-curl -H Host:issuer.docker.localhost \
-    http://127.0.0.1/status/ready | jq .
-    
-curl -H Host:endorser.docker.localhost \
+curl -H Host:agent.docker.localhost \
     http://127.0.0.1/status/ready | jq .
     
 ```
 
 *You can visit the following pages in your browser*
-- http://issuer.docker.localhost
-- http://endorser.docker.localhost
+- http://agent.docker.localhost
 - http://server.docker.localhost/docs
 
 ## Create a DID
@@ -52,7 +48,7 @@ This demo also serves as an introduction to Data Integrity proof sets.
 namespace='demo'
 identifier='issuer'
 curl -H Host:server.docker.localhost \
-    http://127.0.0.1/$namespace/$identifier | jq .
+    http://127.0.0.1?namespace=$namespace&identifier=$identifier | jq .
 ```
 ```json
 {
@@ -77,16 +73,13 @@ From this point on, you have 10 minutes to complete the rest of this demo before
 
 ## Create a new verification Method
 Open the browser and register a new verification method with the agent.
-- http://issuer.docker.localhost/api/doc#/did/post_did_web
+- http://issuer.docker.localhost/api/doc#/wallet/post_keys
 
 Here's a sample request you can copy into the OpenAPI interface.
 
 ```json
 {
-    "type": "MultiKey",
-    "id": "did:web:server.docker.localhost:demo:issuer#key-01",
-    "seed": "00000000000000000000000000000000",
-    "key_type": "ed25519"
+    "kid": "did:web:server.docker.localhost:demo:issuer#key-01"
 }
 ```
 
@@ -142,7 +135,7 @@ See below for a template to use as your request body.
     "expires": "⚠️",
     "domain": "server.docker.localhost",
     "challenge": "⚠️",
-    "verificationMethod": "did:web:server.docker.localhost:demo:issuer#key-01"
+    "verificationMethod": "did:key:⚠️#⚠️"
   }
 }
 
@@ -177,7 +170,7 @@ See below for a template to use as your request body.
             "type": "DataIntegrityProof",
             "cryptosuite": "eddsa-jcs-2022",
             "proofPurpose": "authentication",
-            "verificationMethod": "did:web:server.docker.localhost:demo:issuer#key-01",
+            "verificationMethod": "did:key:⚠️#⚠️",
             "created": "⚠️",
             "expires": "⚠️",
             "domain": "server.docker.localhost",
@@ -190,7 +183,7 @@ See below for a template to use as your request body.
     "type": "DataIntegrityProof",
     "cryptosuite": "eddsa-jcs-2022",
     "proofPurpose": "authentication",
-    "verificationMethod": "did:web:server.docker.localhost#key-01",
+    "verificationMethod": "did:key:z6MkgKA7yrw5kYSiDuQFcye4bMaJpcfHFry3Bx45pdWh3s8i#z6MkgKA7yrw5kYSiDuQFcye4bMaJpcfHFry3Bx45pdWh3s8i ",
     "created": "⚠️",
     "expires": "⚠️",
     "domain": "server.docker.localhost",

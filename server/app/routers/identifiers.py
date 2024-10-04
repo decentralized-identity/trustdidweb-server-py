@@ -1,70 +1,98 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from app.models.web_requests import RequestDID, RegisterDID, RequestDIDUpgrade, PublishLogEntry
+from app.models.web_schemas import RegisterDID
 from config import settings
-from app.plugins import AskarVerifier, AskarStorage, TrustDidWeb
-# from app.dependencies import (
-#     did_document_exists,
-#     valid_did_registration,
-# )
-from app.utilities import location_available, to_did_web, valid_did_registration, did_document_exists, bootstrap_did_doc
-import jsonlines
-import json
+from app.plugins import AskarVerifier, AskarStorage
+from app.dependencies import identifier_available, did_document_exists
 
 router = APIRouter(tags=["Identifiers"])
 
 
-@router.post("/identifier/request", summary="Request new identifier.")
-async def request_did(request_body: RequestDID):
-    did = to_did_web(request_body.model_dump()['namespace'], request_body.model_dump()['identifier'])
-    await location_available(did)
-    return JSONResponse(
-        status_code=200,
-        content={
-            "document": bootstrap_did_doc(did),
-            "options": AskarVerifier().create_proof_config(),
-        },
+@router.get("/")
+async def request_did(
+    namespace: str = None,
+    identifier: str = None,
+):
+    if namespace and identifier:
+        did = f"{settings.DID_WEB_BASE}:{namespace}:{identifier}"
+        await identifier_available(did)
+        return JSONResponse(
+            status_code=200,
+            content={
+                "didDocument": {
+                    "@context": ["https://www.w3.org/ns/did/v1"],
+                    "id": did,
+                },
+                "proofOptions": AskarVerifier().create_proof_config(did),
+            },
+        )
+
+    raise HTTPException(status_code=400, detail="Missing request information.")
+
+
+@router.post("/{namespace}/{identifier}")
+async def register_did(
+    namespace: str,
+    identifier: str,
+    request_body: RegisterDID,
+):
+    did_document = request_body.model_dump()["didDocument"]
+    did = f"{settings.DID_WEB_BASE}:{namespace}:{identifier}"
+
+    await identifier_available(did)
+
+    # Ensure correct endpoint is called
+    if did_document["id"] != did:
+        raise HTTPException(status_code=400, detail="Location mismatch.")
+
+    # Assert proof set
+    proof_set = did_document.pop("proof", None)
+    if len(proof_set) != 2:
+        raise HTTPException(status_code=400, detail="Expecting proof set.")
+
+    # Find proof matching endorser
+    endorser_proof = next(
+        (
+            proof
+            for proof in proof_set
+            if proof["verificationMethod"]
+            == f"did:key:{settings.ENDORSER_MULTIKEY}#{settings.ENDORSER_MULTIKEY}"
+        ),
+        None,
     )
 
-
-@router.post("/identifier/register", summary="Register identifier.")
-async def upgrade_did(request_body: RegisterDID):
-    did_document = request_body.model_dump()['didDocument']
-    await location_available(did_document['id'])
-    await valid_did_registration(did_document)
-    await AskarStorage().store("didDocument", did_document['id'], did_document)
-    return JSONResponse(
-        status_code=201,
-        content={
-            "didDocument": did_document,
-        },
+    # Find proof matching client
+    client_proof = next(
+        (
+            proof
+            for proof in proof_set
+            if proof["verificationMethod"]
+            != f"did:key:{settings.ENDORSER_MULTIKEY}#{settings.ENDORSER_MULTIKEY}"
+        ),
+        None,
     )
 
+    if client_proof and endorser_proof:
+        # Verify proofs
+        AskarVerifier().verify_proof(did_document, client_proof)
+        AskarVerifier().verify_proof(did_document, endorser_proof)
+        authorized_key = client_proof["verificationMethod"].split("#")[-1]
 
-@router.post("/identifier/upgrade", summary="Upgrade to Trust DID Web.")
-async def request_did_upgrade(request_body: RequestDIDUpgrade):
-    await did_document_exists(request_body.model_dump()['id'])
-    did_document = await AskarStorage().fetch("didDocument", request_body.model_dump()['id'])
-    log_entry = TrustDidWeb().provision_log_entry(did_document, request_body.model_dump()['updateKey'])
-    return JSONResponse(
-        status_code=200,
-        content={
-            "logEntry": log_entry,
-            "proofOptions": AskarVerifier().create_proof_config(challenge=log_entry[0]),
-        },
-    )
+        # TODO implement registration queue
+        # await AskarStorage().store("didRegistration", did, did_document)
+
+        # Store document and authorized key
+        await AskarStorage().store("didDocument", did, did_document)
+        await AskarStorage().store("authorizedKey", did, authorized_key)
+        return JSONResponse(status_code=201, content={"didDocument": did_document})
+
+    raise HTTPException(status_code=400, detail="Missing expected proof.")
 
 
-@router.post("/identifier/log", summary="Publish log entry.")
-async def publish_log(request_body: PublishLogEntry, response: Response):
-    log_entry = request_body.model_dump()['logEntry']
-    did_tdw = log_entry[3]['value']['id']
-    did_web = 'did:web:'+':'.join(did_tdw.split(':')[3:])
-    await did_document_exists(did_web)
-    # await valid_log_entry(log_entry)
-    did_document = await AskarStorage().fetch("didDocument", did_web)
-    did_document['alsoKnownAs'] = log_entry[3]['value']['id']
-    did_document = await AskarStorage().update("didDocument", did_web, did_document)
-    logs = [json.dumps(log_entry)]
-    did_document = await AskarStorage().store("didLogs", did_web, logs)
-    return JSONResponse(status_code=201, content={'did': did_tdw})
+@router.get("/{namespace}/{identifier}/did.json", include_in_schema=False)
+async def get_did_document(namespace: str, identifier: str):
+    did = f"{settings.DID_WEB_BASE}:{namespace}:{identifier}"
+    did_doc = await AskarStorage().fetch("didDocument", did)
+    if did_doc:
+        return JSONResponse(status_code=200, content=did_doc)
+    raise HTTPException(status_code=404, detail="Ressource not found.")

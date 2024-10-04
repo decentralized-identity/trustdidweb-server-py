@@ -1,0 +1,82 @@
+---
+nameOverride: "trustdidweb-server-py"
+fullnameOverride: "trustdidweb-server-py"
+ingressSuffix: ""
+
+selectorLabels: {}
+
+server:
+  image:
+    repository: ghcr.io/OpSecId/trustdidweb-server-py
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+    tag: 0.1.0
+
+  host: ""
+
+  replicaCount: 1
+
+  podAnnotations: {}
+  podSecurityContext: {}
+  containerSecurityContext: {}
+
+  service:
+    type: ClusterIP
+    apiPort: 8000
+    servicePort: 80
+
+  resources:
+    limits:
+      cpu: 100m
+      memory: 512Mi
+    requests:
+      cpu: 10m
+      memory: 128Mi
+
+  networkPolicy:
+    ingress:
+      podSelector: {}
+
+  environment:
+    DOMAIN: ""
+    ENDORSER_MULTIKEY: ""
+
+postgresql:
+  enabled: true
+  fullnameOverride: "trustdidweb-server-py-postgresql"
+  nameOverride: "trustdidweb-server-py-postgresql"
+  architecture: standalone
+  auth:
+    enablePostgresUser: true
+    existingSecret: ""
+    secretKeys:
+      adminPasswordKey: admin-password
+      userPasswordKey: database-password
+    database: trustdidweb-server-py
+    username: trustdidweb-server-py
+
+  ## PostgreSQL Primary parameters
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+    containerSecurityContext:
+      enabled: false
+    podSecurityContext:
+      enabled: false
+    resources:
+      limits:
+        cpu: 800m
+        memory: 500Mi
+      requests:
+        cpu: 100m
+        memory: 100Mi
+    service:
+      ports:
+        postgresql: 5432
+    extendedConfiguration: |
+      max_connections = 500
+
+  networkPolicy:
+    ingress:
+      podSelector: {}

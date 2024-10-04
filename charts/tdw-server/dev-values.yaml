@@ -1,0 +1,15 @@
+---
+server:
+  image:
+    tag: "0.0.5"
+
+  host: "localhost"
+
+  environment:
+    SECRET_KEY: ""
+    ENDORSER_MULTIKEY: ""
+
+
+postgresql:
+  auth:
+    password: "postgres"

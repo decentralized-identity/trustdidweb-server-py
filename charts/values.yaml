@@ -7,10 +7,10 @@ selectorLabels: {}
 
 server:
   image:
-    repository: ghcr.io/OpSecId/trustdidweb-server-py
+    repository: ghcr.io/decentralized-identity/trustdidweb-server-py
     pullPolicy: IfNotPresent
     pullSecrets: []
-    tag: 0.1.0
+    tag: 0.0.4
 
   host: ""
 
@@ -39,6 +39,7 @@ server:
 
   environment:
     DOMAIN: ""
+    SECRET_KEY: ""
     ENDORSER_MULTIKEY: ""
 
 postgresql:

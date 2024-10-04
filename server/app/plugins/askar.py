@@ -37,11 +37,7 @@ class AskarStorage:
         store = await self.open()
         try:
             async with store.session() as session:
-                await session.insert(
-                    category,
-                    data_key,
-                    json.dumps(data)
-                )
+                await session.insert(category, data_key, json.dumps(data))
         except:
             raise HTTPException(status_code=404, detail="Couldn't store record.")
 
@@ -49,11 +45,7 @@ class AskarStorage:
         store = await self.open()
         try:
             async with store.session() as session:
-                await session.replace(
-                    category,
-                    data_key,
-                    json.dumps(data)
-                )
+                await session.replace(category, data_key, json.dumps(data))
         except:
             raise HTTPException(status_code=404, detail="Couldn't update record.")
 
@@ -103,7 +95,7 @@ class AskarVerifier:
             raise HTTPException(status_code=400, detail=str(msg))
 
     def verify_proof(self, document, proof):
-        self.assert_proof_options(proof, document['id'])
+        self.assert_proof_options(proof, document["id"])
 
         multikey = proof["verificationMethod"].split("#")[-1]
 

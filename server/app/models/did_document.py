@@ -7,17 +7,17 @@ import re
 import validators
 
 
-DID_WEB_REGEX = re.compile(
-    "did:web:((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)"
-)
+DID_WEB_REGEX = re.compile("did:web:((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)")
 
 DID_WEB_ID_REGEX = re.compile(
     "did:web:((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)#([a-z0-9._%-]+)"
 )
 
+
 class BaseModel(BaseModel):
     def model_dump(self, **kwargs) -> Dict[str, Any]:
         return super().model_dump(by_alias=True, exclude_none=True, **kwargs)
+
 
 class VerificationMethod(BaseModel):
     id: str = Field()
@@ -27,27 +27,31 @@ class VerificationMethod(BaseModel):
     @field_validator("id")
     @classmethod
     def verification_method_id_validator(cls, value):
-        assert value.startswith(f'did:web:{settings.DOMAIN}')
+        assert value.startswith(f"did:web:{settings.DOMAIN}")
         return value
 
     @field_validator("type")
     @classmethod
     def verification_method_type_validator(cls, value):
-        assert value in ['Multikey', 'JsonWebKey'], 'Expected type Multikey or JsonWebKey'
+        assert value in [
+            "Multikey",
+            "JsonWebKey",
+        ], "Expected type Multikey or JsonWebKey"
         return value
 
     @field_validator("controller")
     @classmethod
     def verification_method_controller_validator(cls, value):
         assert DID_WEB_REGEX.match(value), "Expected controller to be a DID."
-        assert value.startswith(f'did:web:{settings.DOMAIN}')
+        assert value.startswith(f"did:web:{settings.DOMAIN}")
         return value
 
 
 class JsonWebKey(BaseModel):
-    kty: str = Field('OKP')
-    crv: str = Field('Ed25519')
-    x: str = Field(example='jihLNQ0eeR8OR-bgVxiUNOTP0tDKs5WKypYN0J5SJ9I')
+    kty: str = Field("OKP")
+    crv: str = Field("Ed25519")
+    x: str = Field(example="jihLNQ0eeR8OR-bgVxiUNOTP0tDKs5WKypYN0J5SJ9I")
+
 
 class VerificationMethodJwk(VerificationMethod):
     publicKeyJwk: JsonWebKey = Field()
@@ -58,6 +62,7 @@ class VerificationMethodJwk(VerificationMethod):
         # TODO decode b64
         return value
 
+
 class VerificationMethodMultikey(VerificationMethod):
     publicKeyMultibase: str = Field()
 
@@ -67,7 +72,7 @@ class VerificationMethodMultikey(VerificationMethod):
         try:
             multibase.decode(value)
         except:
-            assert False, f'Unable to decode public key multibase value {value}'
+            assert False, f"Unable to decode public key multibase value {value}"
         return value
 
 
@@ -79,13 +84,13 @@ class Service(BaseModel):
     @field_validator("id")
     @classmethod
     def service_id_validator(cls, value):
-        assert value.startswith(f'did:web:{settings.DOMAIN}')
+        assert value.startswith(f"did:web:{settings.DOMAIN}")
         return value
 
     @field_validator("serviceEndpoint")
     @classmethod
     def service_endpoint_validator(cls, value):
-        assert validators.url(value) , f"Invalid service endpoint {value}."
+        assert validators.url(value), f"Invalid service endpoint {value}."
         return value
 
 
@@ -98,7 +103,9 @@ class DidDocument(BaseModel):
     description: str = Field(None)
     controller: str = Field(None)
     alsoKnownAs: List[str] = Field(None)
-    verificationMethod: List[Union[VerificationMethodMultikey, VerificationMethodJwk]] = Field()
+    verificationMethod: List[
+        Union[VerificationMethodMultikey, VerificationMethodJwk]
+    ] = Field()
     authentication: List[Union[str, VerificationMethod]] = Field()
     assertionMethod: List[Union[str, VerificationMethod]] = Field()
     keyAgreement: List[Union[str, VerificationMethod]] = Field(None)

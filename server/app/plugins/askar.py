@@ -3,7 +3,6 @@ from fastapi import HTTPException
 from aries_askar import Store, Key
 from aries_askar.bindings import LocalKeyHandle
 from config import settings
-from app.utilities import create_did_doc
 import hashlib
 import uuid
 from multiformats import multibase
@@ -21,13 +20,6 @@ class AskarStorage:
 
     async def provision(self, recreate=False):
         await Store.provision(self.db, "raw", self.key, recreate=recreate)
-        endorser_did_doc = create_did_doc(
-            did=settings.DID_WEB_BASE, multikey=settings.ENDORSER_MULTIKEY
-        )
-        try:
-            await self.store("didDocument", settings.DID_WEB_BASE, endorser_did_doc)
-        except:
-            await self.update("didDocument", settings.DID_WEB_BASE, endorser_did_doc)
 
     async def open(self):
         return await Store.open(self.db, "raw", self.key)
@@ -48,8 +40,7 @@ class AskarStorage:
                 await session.insert(
                     category,
                     data_key,
-                    json.dumps(data),
-                    {"~plaintag": "a", "enctag": "b"},
+                    json.dumps(data)
                 )
         except:
             raise HTTPException(status_code=404, detail="Couldn't store record.")
@@ -61,22 +52,17 @@ class AskarStorage:
                 await session.replace(
                     category,
                     data_key,
-                    json.dumps(data),
-                    {"~plaintag": "a", "enctag": "b"},
+                    json.dumps(data)
                 )
         except:
             raise HTTPException(status_code=404, detail="Couldn't update record.")
 
 
 class AskarVerifier:
-    def __init__(self, multikey=None):
+    def __init__(self):
         self.type = "DataIntegrityProof"
         self.cryptosuite = "eddsa-jcs-2022"
         self.purpose = "authentication"
-        if multikey:
-            self.key = Key(LocalKeyHandle()).from_public_bytes(
-                alg="ed25519", public=bytes(bytearray(multibase.decode(multikey))[2:])
-            )
 
     def create_proof_config(self, did):
         expires = str(
@@ -88,7 +74,7 @@ class AskarVerifier:
             "type": self.type,
             "cryptosuite": self.cryptosuite,
             "proofPurpose": self.purpose,
-            "verificationMethod": f"{settings.DID_WEB_BASE}#key-01",
+            "verificationMethod": f"did:key:{settings.ENDORSER_MULTIKEY}#{settings.ENDORSER_MULTIKEY}",
             "expires": expires,
             "domain": settings.DOMAIN,
             "challenge": self.create_challenge(did + expires),
@@ -119,14 +105,9 @@ class AskarVerifier:
     def verify_proof(self, document, proof):
         self.assert_proof_options(proof, document['id'])
 
-        # Set multikey to endorser multikey if verificationMethod matches else expect did:key:
-        multikey = (
-            settings.ENDORSER_MULTIKEY
-            if proof["verificationMethod"] == f'{settings.DID_WEB_BASE}#key-01'
-            else proof["verificationMethod"].split("#")[-1]
-        )
+        multikey = proof["verificationMethod"].split("#")[-1]
 
-        self.key = Key(LocalKeyHandle()).from_public_bytes(
+        key = Key(LocalKeyHandle()).from_public_bytes(
             alg="ed25519", public=bytes(bytearray(multibase.decode(multikey))[2:])
         )
 
@@ -134,11 +115,11 @@ class AskarVerifier:
         signature = multibase.decode(proof_options.pop("proofValue"))
 
         hash_data = (
-            sha256(canonicaljson.encode_canonical_json(document)).digest()
-            + sha256(canonicaljson.encode_canonical_json(proof_options)).digest()
+            sha256(canonicaljson.encode_canonical_json(proof_options)).digest()
+            + sha256(canonicaljson.encode_canonical_json(document)).digest()
         )
         try:
-            if not self.key.verify_signature(message=hash_data, signature=signature):
+            if not key.verify_signature(message=hash_data, signature=signature):
                 raise HTTPException(
                     status_code=400, detail="Signature was forged or corrupt."
                 )

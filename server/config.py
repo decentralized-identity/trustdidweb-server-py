@@ -7,7 +7,7 @@ load_dotenv(os.path.join(basedir, ".env"))
 
 
 class Settings(BaseSettings):
-    PROJECT_TITLE: str = "trustdidweb-server-py"
+    PROJECT_TITLE: str = "TDW Server"
     PROJECT_VERSION: str = "v0"
     
     SECRET_KEY: str = os.environ["SECRET_KEY"]

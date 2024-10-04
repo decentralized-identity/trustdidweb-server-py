@@ -2,6 +2,7 @@ from typing import Union, List, Dict, Any
 from pydantic import BaseModel, Field, field_validator
 from .di_proof import DataIntegrityProof
 from multiformats import multibase
+from config import settings
 import re
 import validators
 
@@ -18,30 +19,47 @@ class BaseModel(BaseModel):
     def model_dump(self, **kwargs) -> Dict[str, Any]:
         return super().model_dump(by_alias=True, exclude_none=True, **kwargs)
 
-
 class VerificationMethod(BaseModel):
     id: str = Field()
-    type: Union[str, List[str]] = Field('Multikey')
+    type: Union[str, List[str]] = Field()
     controller: str = Field()
-    publicKeyMultibase: str = Field()
 
     @field_validator("id")
     @classmethod
     def verification_method_id_validator(cls, value):
-        # assert DID_WEB_ID_REGEX.match(value), "Expected controller to be a DID."
+        assert value.startswith(f'did:web:{settings.DOMAIN}')
         return value
 
     @field_validator("type")
     @classmethod
     def verification_method_type_validator(cls, value):
-        assert value == 'Multikey', 'Expected type Multikey'
+        assert value in ['Multikey', 'JsonWebKey'], 'Expected type Multikey or JsonWebKey'
         return value
 
     @field_validator("controller")
     @classmethod
     def verification_method_controller_validator(cls, value):
         assert DID_WEB_REGEX.match(value), "Expected controller to be a DID."
+        assert value.startswith(f'did:web:{settings.DOMAIN}')
         return value
+
+
+class JsonWebKey(BaseModel):
+    kty: str = Field('OKP')
+    crv: str = Field('Ed25519')
+    x: str = Field(example='jihLNQ0eeR8OR-bgVxiUNOTP0tDKs5WKypYN0J5SJ9I')
+
+class VerificationMethodJwk(VerificationMethod):
+    publicKeyJwk: JsonWebKey = Field()
+
+    @field_validator("publicKeyJwk")
+    @classmethod
+    def verification_method_public_key_validator(cls, value):
+        # TODO decode b64
+        return value
+
+class VerificationMethodMultikey(VerificationMethod):
+    publicKeyMultibase: str = Field()
 
     @field_validator("publicKeyMultibase")
     @classmethod
@@ -61,7 +79,7 @@ class Service(BaseModel):
     @field_validator("id")
     @classmethod
     def service_id_validator(cls, value):
-        assert DID_WEB_ID_REGEX.match(value), "Expected controller to be a DID."
+        assert value.startswith(f'did:web:{settings.DOMAIN}')
         return value
 
     @field_validator("serviceEndpoint")
@@ -76,9 +94,11 @@ class DidDocument(BaseModel):
         ["https://www.w3.org/ns/did/v1"], alias="@context"
     )
     id: str = Field()
+    name: str = Field(None)
+    description: str = Field(None)
     controller: str = Field(None)
     alsoKnownAs: List[str] = Field(None)
-    verificationMethod: List[VerificationMethod] = Field()
+    verificationMethod: List[Union[VerificationMethodMultikey, VerificationMethodJwk]] = Field()
     authentication: List[Union[str, VerificationMethod]] = Field()
     assertionMethod: List[Union[str, VerificationMethod]] = Field()
     keyAgreement: List[Union[str, VerificationMethod]] = Field(None)

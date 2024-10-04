@@ -30,14 +30,14 @@ services:
 
   agent:
     build:
-      context: https://github.com/OpSecId/aries-cloudagent-python.git#data-integrity-routes
+      context: https://github.com/hyperledger/aries-cloudagent-python.git
       dockerfile: docker/Dockerfile
     entrypoint: ["aca-py", "start"]
     command: [
       '--no-ledger',
       '--no-transport',
       '--auto-provision',
-      '--seed', 'FAbqv7L9eDhiQKR2afAGZMy4J^wrA*X*',
+      '--seed', '${ENDORSER_SEED}',
       '--wallet-type', 'askar',
       '--wallet-name', 'askar',
       '--wallet-key', 'askar',

@@ -21,15 +21,13 @@ class DataIntegrityProof(BaseModel):
     @field_validator("type")
     @classmethod
     def validate_type(cls, value):
-        if value != "DataIntegrityProof":
-            raise ValueError("Expected 'DataIntegrityProof' type")
+        assert value == "DataIntegrityProof"
         return value
 
     @field_validator("cryptosuite")
     @classmethod
     def validate_cryptosuite(cls, value):
-        if value not in ["eddsa-jcs-2022"]:
-            raise ValueError("Unsupported cryptosuite")
+        assert value in ["eddsa-jcs-2022"]
         return value
 
     @field_validator("expires")

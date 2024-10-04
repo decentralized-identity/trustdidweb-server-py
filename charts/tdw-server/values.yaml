@@ -10,13 +10,6 @@ server:
     repository: ghcr.io/decentralized-identity/trustdidweb-server-py
     pullPolicy: IfNotPresent
     pullSecrets: []
-    tag: ""
-
-  host: ""
-
-  environment:
-    SECRET_KEY: ""
-    ENDORSER_MULTIKEY: ""
 
   replicaCount: 1
 
@@ -48,9 +41,7 @@ postgresql:
   architecture: standalone
   auth:
     enablePostgresUser: true
-    database: "tdw-server"
     username: "tdw-server"
-    password: ""
 
   ## PostgreSQL Primary parameters
   primary:

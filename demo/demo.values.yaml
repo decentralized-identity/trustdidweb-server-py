@@ -6,8 +6,8 @@ server:
   host: "localhost"
 
   environment:
-    SECRET_KEY: ""
-    ENDORSER_MULTIKEY: ""
+    SECRET_KEY: "s3cret_key"
+    ENDORSER_MULTIKEY: "z6MkgKA7yrw5kYSiDuQFcye4bMaJpcfHFry3Bx45pdWh3s8i"
 
 
 postgresql:

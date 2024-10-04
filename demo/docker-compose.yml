@@ -8,6 +8,8 @@ services:
       DOMAIN: server.${DOMAIN}
       SECRET_KEY: ${SECRET_KEY}
       ENDORSER_MULTIKEY: ${ENDORSER_MULTIKEY}
+      TDW_SERVER_URL: http://server:8000
+      AGENT_ADMIN_URL: http://agent:8020
     labels:
       - traefik.enable=true
       - traefik.http.routers.frontend.rule=Host(`demo.${DOMAIN}`)

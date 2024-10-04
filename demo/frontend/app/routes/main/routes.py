@@ -1,30 +1,16 @@
 from flask import (
-    current_app,
     render_template,
-    url_for,
-    redirect,
-    session,
-    request,
-    flash,
-    send_file,
 )
 from app.routes.main import bp
+from app.plugins.tdw import TDWService
 from .forms import RegisterIssuerForm
-import requests
 
-@bp.route("/", methods=["GET"])
+@bp.route("/", methods=["GET", "POST"])
 def index():
     form = RegisterIssuerForm()
     if form.submit.data and form.validate():
-        url = form.url.data
-        name = form.name.data
-        scope = form.scope.data
-        description = form.description.data
+        TDWService().register_did(form.name.data, form.scope.data)
+        return render_template("pages/response.jinja", title='TDW Server Demo')
         
-        namespace = scope.replace(" ", "-").lower()
-        identifier = name.replace(" ", "-").lower()
-        r = requests.get(f'{current_app.config["TDW_SERVER_URL"]}?namespace={namespace}&identifier={identifier}')
-        
-        
-        
-    return render_template("pages/index.jinja", title='Dashboard')
+
+    return render_template("pages/index.jinja", title='TDW Server Demo', form=form)

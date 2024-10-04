@@ -1,13 +1,10 @@
-from flask import render_template, current_app, url_for
+from flask import render_template
 from werkzeug.exceptions import HTTPException
 from app.errors import bp
-import traceback
-import uuid
 
 
 @bp.app_errorhandler(HTTPException)
 def handle_http_exception(error):
-    print(str(error))
     error = {
         # "code": error.code,
         # "name": error.name,
@@ -22,7 +19,6 @@ def handle_http_exception(error):
 
 @bp.app_errorhandler(Exception)
 def handle_exception(error):
-    print(str(error))
     error = {
         # "code": error.code,
         # "name": error.name,

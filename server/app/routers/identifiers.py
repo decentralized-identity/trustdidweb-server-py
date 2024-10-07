@@ -1,9 +1,9 @@
+from app.dependencies import identifier_available
+from app.models.web_schemas import RegisterDID
+from app.plugins import AskarStorage, AskarVerifier
+from config import settings
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from app.models.web_schemas import RegisterDID
-from config import settings
-from app.plugins import AskarVerifier, AskarStorage
-from app.dependencies import identifier_available, did_document_exists
 
 router = APIRouter(tags=["Identifiers"])
 

@@ -1,5 +1,6 @@
-import uvicorn
 import asyncio
+
+import uvicorn
 from app.plugins import AskarStorage
 
 if __name__ == "__main__":

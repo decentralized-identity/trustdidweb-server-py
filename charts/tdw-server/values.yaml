@@ -19,6 +19,9 @@ server:
     pullPolicy: IfNotPresent
     pullSecrets: []
 
+  environment:
+    ENDORSER_MULTIKEY: ""
+
   replicaCount: 1
 
   podAnnotations: {}

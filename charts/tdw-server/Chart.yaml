@@ -6,6 +6,11 @@ type: application
 version: 0.0.6
 appVersion: "0.0.5"
 
+maintainers:
+  - name: Patrick St-Louis
+    email: patrick.st-louis@opsecid.ca
+    url: https://github.com/PatStLouis
+
 dependencies:
   - name: postgresql
     version: 11.9.13

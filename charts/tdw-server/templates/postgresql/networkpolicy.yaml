@@ -2,24 +2,6 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "global.postgresql.fullname" . }}-ingress
-  labels:
-    {{- include "postgresql.labels" . | nindent 4 }}
-spec:
-  podSelector:
-    matchLabels:
-      {{- include "postgresql.selectorLabels" . | nindent 6 }}
-  ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              {{- toYaml .Values.networkPolicy.ingress.namespaceSelector | nindent 14 }}
-  policyTypes:
-    - Ingress
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
   name: {{ include "global.postgresql.fullname" . }}
   labels:
     {{- include "postgresql.labels" . | nindent 4 }}

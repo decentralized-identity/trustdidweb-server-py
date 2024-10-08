@@ -5,6 +5,14 @@ ingressSuffix: ""
 
 selectorLabels: {}
 
+ingress:
+  labels: []
+  annotations: []
+
+networkPolicy:
+  ingress:
+    namespaceSelector: []
+
 server:
   image:
     repository: ghcr.io/decentralized-identity/trustdidweb-server-py

@@ -30,20 +30,16 @@ async def request_did(
     raise HTTPException(status_code=400, detail="Missing request information.")
 
 
-@router.post("/{namespace}/{identifier}")
+@router.post("/")
 async def register_did(
     namespace: str,
     identifier: str,
     request_body: RegisterDID,
 ):
     did_document = request_body.model_dump()["didDocument"]
-    did = f"{settings.DID_WEB_BASE}:{namespace}:{identifier}"
+    did = did_document["id"]
 
     await identifier_available(did)
-
-    # Ensure correct endpoint is called
-    if did_document["id"] != did:
-        raise HTTPException(status_code=400, detail="Location mismatch.")
 
     # Assert proof set
     proof_set = did_document.pop("proof", None)

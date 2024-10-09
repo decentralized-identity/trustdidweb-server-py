@@ -17,10 +17,10 @@ class Settings(BaseSettings):
     DID_WEB_BASE: str = f"did:web:{DOMAIN}"
     ENDORSER_MULTIKEY: str = os.environ["ENDORSER_MULTIKEY"]
 
-    POSTGRES_USER: str = os.environ["POSTGRES_USER"]
-    POSTGRES_PASSWORD: str = os.environ["POSTGRES_PASSWORD"]
-    POSTGRES_SERVER_NAME: str = os.environ["POSTGRES_SERVER_NAME"]
-    POSTGRES_SERVER_PORT: str = os.environ["POSTGRES_SERVER_PORT"]
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "")
+    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
+    POSTGRES_SERVER_NAME: str = os.getenv("POSTGRES_SERVER_NAME", "")
+    POSTGRES_SERVER_PORT: str = os.getenv("POSTGRES_SERVER_PORT", "")
 
     ASKAR_DB: str = "sqlite://app.db"
     if (
@@ -33,7 +33,7 @@ class Settings(BaseSettings):
             f"Using postgres storage: {POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}"
         )
         ASKAR_DB: str = (
-            f"postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}"
+            f"postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}/tdw-server"
         )
     else:
         logging.info("Using SQLite database")

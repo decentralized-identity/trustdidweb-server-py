@@ -3,7 +3,7 @@ name: trustdidweb-server-py
 icon: https://identity.foundation/trustdidweb/tdw.jpg
 description: An api server to register and serve trusted web dids.
 type: application
-version: 0.0.6
+version: 0.0.8
 appVersion: "0.0.5"
 
 maintainers:

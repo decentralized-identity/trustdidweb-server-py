@@ -52,6 +52,10 @@ postgresql:
   architecture: standalone
   auth:
     enablePostgresUser: true
+    existingSecret: ""
+    secretKeys:
+      adminPasswordKey: admin-password
+      userPasswordKey: database-password
     username: "tdw-server"
 
   ## PostgreSQL Primary parameters

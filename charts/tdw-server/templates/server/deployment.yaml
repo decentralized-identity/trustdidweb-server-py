@@ -32,7 +32,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "server.fullname" . }}
-                  key: SECRET_KEY
+                  key: secret-key
             - name: DOMAIN
               value: {{ .Values.server.host }}
             - name: ENDORSER_MULTIKEY

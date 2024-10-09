@@ -4,6 +4,7 @@ kind: Ingress
 metadata:
   name: {{ include "server.fullname" . }}
   labels:
+    {{- toYaml .Values.server.labels | nindent 4 }}
     {{- include "server.labels" . | nindent 4 }}
 spec:
   tls:

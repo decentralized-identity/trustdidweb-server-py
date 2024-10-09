@@ -3,8 +3,13 @@ name: trustdidweb-server-py
 icon: https://identity.foundation/trustdidweb/tdw.jpg
 description: An api server to register and serve trusted web dids.
 type: application
-version: 0.0.5
+version: 0.0.6
 appVersion: "0.0.5"
+
+maintainers:
+  - name: PatStLouis
+    email: patrick.st-louis@opsecid.ca
+    url: https://github.com/PatStLouis
 
 dependencies:
   - name: postgresql
@@ -12,7 +17,7 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami/
     condition: postgresql.enabled
   - name: common
-    repository: "https://charts.bitnami.com/bitnami"
+    repository: https://charts.bitnami.com/bitnami/
     tags:
       - bitnami-common
     version: 2.x.x

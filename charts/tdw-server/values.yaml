@@ -1,11 +1,11 @@
 ---
 nameOverride: "tdw-server"
 fullnameOverride: "tdw-server"
-ingressSuffix: ""
 
 selectorLabels: {}
 
 ingress:
+  tls: false
   labels: []
   annotations: []
 
@@ -19,6 +19,8 @@ server:
     tag: pre-0.0.11
     pullPolicy: IfNotPresent
     pullSecrets: []
+  # host is required when enabling TLS in the ingress
+  # host: server.myapp.example
 
   environment:
     ENDORSER_MULTIKEY: ""

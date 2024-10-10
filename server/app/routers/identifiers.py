@@ -32,8 +32,6 @@ async def request_did(
 
 @router.post("/")
 async def register_did(
-    namespace: str,
-    identifier: str,
     request_body: RegisterDID,
 ):
     did_document = request_body.model_dump()["didDocument"]

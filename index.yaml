@@ -2,6 +2,31 @@ apiVersion: v1
 entries:
   trustdidweb-server-py:
   - apiVersion: v2
+    appVersion: 0.0.6
+    created: "2024-10-10T00:53:51.342345916Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami/
+      version: 11.9.13
+    - name: common
+      repository: https://charts.bitnami.com/bitnami/
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: An api server to register and serve trusted web dids.
+    digest: ed7d3e10c796203e52b0c34217578713deffd90c0a4f80f7bf3b31463724259d
+    icon: https://identity.foundation/trustdidweb/tdw.jpg
+    maintainers:
+    - email: patrick.st-louis@opsecid.ca
+      name: PatStLouis
+      url: https://github.com/PatStLouis
+    name: trustdidweb-server-py
+    type: application
+    urls:
+    - https://github.com/decentralized-identity/trustdidweb-server-py/releases/download/trustdidweb-server-py-0.0.9/trustdidweb-server-py-0.0.9.tgz
+    version: 0.0.9
+  - apiVersion: v2
     appVersion: 0.0.5
     created: "2024-10-09T19:54:14.120805897Z"
     dependencies:
@@ -134,4 +159,4 @@ entries:
     urls:
     - https://github.com/decentralized-identity/trustdidweb-server-py/releases/download/trustdidweb-server-py-0.0.2/trustdidweb-server-py-0.0.2.tgz
     version: 0.0.2
-generated: "2024-10-09T19:54:14.120831846Z"
+generated: "2024-10-10T00:53:51.342377956Z"

@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 import os
 from dotenv import load_dotenv
+import logging
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, ".env"))
@@ -16,12 +17,28 @@ class Settings(BaseSettings):
     DID_WEB_BASE: str = f"did:web:{DOMAIN}"
     ENDORSER_MULTIKEY: str = os.environ["ENDORSER_MULTIKEY"]
 
-    ASKAR_DB: str = (
-        os.environ["POSTGRES_URI"]+'/tdw-server'
-        if "POSTGRES_URI" in os.environ
-        else "sqlite://app.db"
-    )
-    SCID_PLACEHOLDER: str = '{SCID}'
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "")
+    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
+    POSTGRES_SERVER_NAME: str = os.getenv("POSTGRES_SERVER_NAME", "")
+    POSTGRES_SERVER_PORT: str = os.getenv("POSTGRES_SERVER_PORT", "")
+
+    ASKAR_DB: str = "sqlite://app.db"
+    if (
+        POSTGRES_USER
+        and POSTGRES_PASSWORD
+        and POSTGRES_SERVER_NAME
+        and POSTGRES_SERVER_PORT
+    ):
+        logging.info(
+            f"Using postgres storage: {POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}"
+        )
+        ASKAR_DB: str = (
+            f"postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}/tdw-server"
+        )
+    else:
+        logging.info("Using SQLite database")
+
+    SCID_PLACEHOLDER: str = "{SCID}"
 
 
 settings = Settings()

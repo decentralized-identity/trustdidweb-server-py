@@ -32,18 +32,22 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "server.fullname" . }}
-                  key: SECRET_KEY
+                  key: secret-key
+            - name: DOMAIN
+              value: {{ .Values.server.host }}
+            - name: ENDORSER_MULTIKEY
+              value: {{ .Values.server.environment.ENDORSER_MULTIKEY }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.auth.username }}
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.postgresql.nameOverride }}
                   key: password
-            - name: DOMAIN
-              value: {{ .Values.server.host }}
-            - name: ENDORSER_MULTIKEY
-              value: {{ .Values.server.environment.ENDORSER_MULTIKEY }}
-            - name: POSTGRES_URI
-              value: postgres://{{ .Values.postgresql.auth.username }}:$(POSTGRES_PASSWORD)@{{ include "global.postgresql.fullname" . }}:{{ .Values.postgresql.primary.service.ports.postgresql }}
+            - name: POSTGRES_SERVER_NAME
+              value: {{ include "global.postgresql.fullname" . }}
+            - name: POSTGRES_SERVER_PORT
+              value: {{ .Values.postgresql.primary.service.ports.postgresql | quote }}
           ports:
             - name: api
               containerPort: {{ .Values.server.service.apiPort }}

@@ -54,7 +54,7 @@ class AskarVerifier:
     def __init__(self):
         self.type = "DataIntegrityProof"
         self.cryptosuite = "eddsa-jcs-2022"
-        self.purpose = "authentication"
+        self.purpose = "assertionMethod"
 
     def create_proof_config(self, did):
         expires = str(
@@ -66,34 +66,31 @@ class AskarVerifier:
             "type": self.type,
             "cryptosuite": self.cryptosuite,
             "proofPurpose": self.purpose,
-            "verificationMethod": f"did:key:{settings.ENDORSER_MULTIKEY}#{settings.ENDORSER_MULTIKEY}",
             "expires": expires,
             "domain": settings.DOMAIN,
             "challenge": self.create_challenge(did + expires),
         }
-        if not challenge:
-            expires = str(
-                (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat(
-                    "T", "seconds"
-                )
-            )
-            proof_options['expires'] = expires
-            proof_options['challenge'] = self.create_challenge(created + expires)
-            
-        return proof_options
 
     def create_challenge(self, value):
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, settings.SECRET_KEY + value))
 
-    def assert_proof_options(self, proof, did):
+    def validate_challenge(self, proof, did):
         try:
-            assert datetime.fromisoformat(proof["expires"]) > datetime.now(
-                timezone.utc
-            ), "Proof expired."
-            assert proof["domain"] == settings.DOMAIN, "Domain mismatch."
-            assert proof["challenge"] == self.create_challenge(
-                did + proof["expires"]
-            ), "Challenge mismatch."
+            if proof.get("domain"):
+                assert proof["domain"] == settings.DOMAIN, "Domain mismatch."
+            if proof.get("challenge"):
+                assert proof["challenge"] == self.create_challenge(
+                    did + proof["expires"]
+                ), "Challenge mismatch."
+        except AssertionError as msg:
+            raise HTTPException(status_code=400, detail=str(msg))
+
+    def validate_proof(self, proof):
+        try:
+            if proof.get("expires"):
+                assert datetime.fromisoformat(proof["expires"]) > datetime.now(
+                    timezone.utc
+                ), "Proof expired."
             assert proof["type"] == self.type, f"Expected {self.type} proof type."
             assert (
                 proof["cryptosuite"] == self.cryptosuite
@@ -105,8 +102,8 @@ class AskarVerifier:
             raise HTTPException(status_code=400, detail=str(msg))
 
     def verify_proof(self, document, proof):
-        self.assert_proof_options(proof, document["id"])
-
+        self.validate_proof(proof)
+        
         multikey = proof["verificationMethod"].split("#")[-1]
 
         key = Key(LocalKeyHandle()).from_public_bytes(

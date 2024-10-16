@@ -10,9 +10,9 @@ class BaseModel(BaseModel):
 class DataIntegrityProof(BaseModel):
     type: str = Field("DataIntegrityProof")
     cryptosuite: str = Field("eddsa-jcs-2022")
-    verification_method: str = Field(alias="verificationMethod")
-    proof_value: str = Field(alias="proofValue")
-    proof_purpose: str = Field(alias="proofPurpose")
+    proofValue: str = Field()
+    proofPurpose: str = Field("assertionMethod")
+    verificationMethod: str = Field()
     domain: str = Field(None)
     challenge: str = Field(None)
     created: str = Field(None)
@@ -28,6 +28,12 @@ class DataIntegrityProof(BaseModel):
     @classmethod
     def validate_cryptosuite(cls, value):
         assert value in ["eddsa-jcs-2022"]
+        return value
+
+    @field_validator("proofPurpose")
+    @classmethod
+    def validate_proof_purpose(cls, value):
+        assert value in ["assertionMethod", "authentication"]
         return value
 
     @field_validator("expires")

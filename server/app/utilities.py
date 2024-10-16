@@ -5,7 +5,7 @@ from fastapi import HTTPException
 
 
 def to_did_web(namespace: str, identifier: str):
-    return f'{settings.DID_WEB_BASE}:{namespace}:{identifier}'
+    return f"{settings.DID_WEB_BASE}:{namespace}:{identifier}"
 
 
 async def location_available(did: str):
@@ -18,9 +18,7 @@ async def did_document_exists(did: str):
         raise HTTPException(status_code=404, detail="Ressource not found.")
 
 
-async def valid_did_registration(
-    did_document
-):
+async def valid_did_registration(did_document):
     did_document
     proofs = did_document.pop("proof")
     try:
@@ -35,11 +33,11 @@ async def valid_did_registration(
         ), "Insuficient proofs, must contain a client and an endorser proof."
     except AssertionError as msg:
         raise HTTPException(status_code=400, detail=str(msg))
-    
+
     endorser_proof = find_proof(proofs, f"{settings.DID_WEB_BASE}#key-01")
     endorser_key = settings.ENDORSER_MULTIKEY
     AskarVerifier(endorser_key).verify_proof(did_document, endorser_proof)
-    
+
     client_proof = find_proof(proofs, did_document["verificationMethod"][0]["id"])
     client_key = find_key(did_document, client_proof["verificationMethod"])
     AskarVerifier(client_key).verify_proof(did_document, client_proof)

@@ -32,9 +32,7 @@ class Settings(BaseSettings):
         logging.info(
             f"Using postgres storage: {POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}"
         )
-        ASKAR_DB: str = (
-            f"postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}/tdw-server"
-        )
+        ASKAR_DB: str = f"postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER_NAME}:{POSTGRES_SERVER_PORT}/tdw-server"
     else:
         logging.info("Using SQLite database")
 

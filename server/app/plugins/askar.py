@@ -74,18 +74,23 @@ class AskarVerifier:
     def create_challenge(self, value):
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, settings.SECRET_KEY + value))
 
-    def validate_proof(self, proof, did=None):
+    def validate_challenge(self, proof, did):
         try:
-            if proof.get("expires"):
-                assert datetime.fromisoformat(proof["expires"]) > datetime.now(
-                    timezone.utc
-                ), "Proof expired."
             if proof.get("domain"):
                 assert proof["domain"] == settings.DOMAIN, "Domain mismatch."
             if proof.get("challenge"):
                 assert proof["challenge"] == self.create_challenge(
                     did + proof["expires"]
                 ), "Challenge mismatch."
+        except AssertionError as msg:
+            raise HTTPException(status_code=400, detail=str(msg))
+
+    def validate_proof(self, proof):
+        try:
+            if proof.get("expires"):
+                assert datetime.fromisoformat(proof["expires"]) > datetime.now(
+                    timezone.utc
+                ), "Proof expired."
             assert proof["type"] == self.type, f"Expected {self.type} proof type."
             assert (
                 proof["cryptosuite"] == self.cryptosuite
@@ -97,6 +102,8 @@ class AskarVerifier:
             raise HTTPException(status_code=400, detail=str(msg))
 
     def verify_proof(self, document, proof):
+        self.validate_proof(proof)
+        
         multikey = proof["verificationMethod"].split("#")[-1]
 
         key = Key(LocalKeyHandle()).from_public_bytes(

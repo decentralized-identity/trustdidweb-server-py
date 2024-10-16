@@ -68,14 +68,11 @@ async def register_did(
 
     if client_proof and endorser_proof:
         # Verify proofs
-        AskarVerifier().validate_proof(client_proof, did_document["id"])
+        AskarVerifier().validate_challenge(client_proof, did_document["id"])
         AskarVerifier().verify_proof(did_document, client_proof)
-        AskarVerifier().validate_proof(endorser_proof, did_document["id"])
+        AskarVerifier().validate_challenge(endorser_proof, did_document["id"])
         AskarVerifier().verify_proof(did_document, endorser_proof)
         authorized_key = client_proof["verificationMethod"].split("#")[-1]
-
-        # TODO implement registration queue
-        # await AskarStorage().store("didRegistration", did, did_document)
 
         # Store document and authorized key
         await AskarStorage().store("didDocument", did, did_document)
@@ -110,7 +107,6 @@ async def initial_log_entry(
     ):
         raise HTTPException(status_code=400, detail="Key unauthorized.")
 
-    AskarVerifier().validate_proof(proof)
     AskarVerifier().verify_proof(log_entry, proof)
     log_entry["proof"] = [proof]
     await AskarStorage().store("logEntries", did, [log_entry])

@@ -11,7 +11,7 @@ async def get_did_document(namespace: str, identifier: str):
     did = f"{settings.DID_WEB_BASE}:{namespace}:{identifier}"
     did_doc = await AskarStorage().fetch("didDocument", did)
     if did_doc:
-        return Response(did_doc, media_type="application/ld+json")
+        return Response(json.dumps(did_doc), media_type="application/ld+json")
     raise HTTPException(status_code=404, detail="Ressource not found.")
 
 

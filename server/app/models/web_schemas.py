@@ -1,6 +1,7 @@
 from typing import Dict, Any
 from pydantic import BaseModel, Field
 from .did_document import SecuredDidDocument
+from .did_log import InitialLogEntry
 
 
 class BaseModel(BaseModel):
@@ -10,3 +11,7 @@ class BaseModel(BaseModel):
 
 class RegisterDID(BaseModel):
     didDocument: SecuredDidDocument = Field()
+
+
+class RegisterInitialLogEntry(BaseModel):
+    logEntry: InitialLogEntry = Field()

@@ -33,6 +33,7 @@ typing-validation = "1.2.11.post4"
 typing-extensions = "^4.12.2"
 uvicorn = "0.30.6"
 validators = "^0.34.0"
+jsonlines = "^4.0.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.6.8"

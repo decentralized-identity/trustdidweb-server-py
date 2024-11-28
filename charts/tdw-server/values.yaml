@@ -5,7 +5,7 @@ fullnameOverride: "tdw-server"
 selectorLabels: {}
 
 ingress:
-  tls: false
+  tls: []
   labels: []
   annotations: []
 
@@ -16,7 +16,7 @@ networkPolicy:
 server:
   image:
     repository: ghcr.io/decentralized-identity/trustdidweb-server-py
-    tag: pre-0.0.11
+    tag: 0.1.1
     pullPolicy: IfNotPresent
     pullSecrets: []
   # host is required when enabling TLS in the ingress
